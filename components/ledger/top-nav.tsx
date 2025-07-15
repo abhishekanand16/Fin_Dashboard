@@ -6,6 +6,7 @@ import Profile01 from "./profile-01"
 import Link from "next/link"
 import { ThemeToggle } from "../theme-toggle"
 import { usePathname } from "next/navigation"
+import { useFinancialData } from "@/context/financial-data-context"
 
 interface BreadcrumbItem {
   label: string
@@ -14,6 +15,19 @@ interface BreadcrumbItem {
 
 export default function TopNav() {
   const pathname = usePathname()
+  const { currency, setCurrency } = useFinancialData()
+  const currencyOptions = [
+    { code: "INR", symbol: "₹", name: "Indian Rupee" },
+    { code: "USD", symbol: "$", name: "US Dollar" },
+    { code: "EUR", symbol: "€", name: "Euro" },
+    { code: "GBP", symbol: "£", name: "British Pound" },
+    { code: "AUD", symbol: "A$", name: "Australian Dollar" },
+    { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
+    { code: "SGD", symbol: "S$", name: "Singapore Dollar" },
+    { code: "JPY", symbol: "¥", name: "Japanese Yen" },
+    { code: "CNY", symbol: "¥", name: "Chinese Yuan" },
+    { code: "ZAR", symbol: "R", name: "South African Rand" },
+  ]
 
   const generateBreadcrumbs = () => {
     const pathSegments = pathname.split("/").filter((segment) => segment !== "")
@@ -59,6 +73,25 @@ export default function TopNav() {
         </button>
 
         <ThemeToggle />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger className="focus:outline-none px-3 py-1 rounded-md border border-gray-200 dark:border-[#2B2B30] bg-white dark:bg-[#18181B] text-sm font-medium flex items-center gap-2 min-w-[8rem]">
+            {currencyOptions.find((c) => c.code === currency)?.symbol || "₹"} {currency}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" sideOffset={0} className="min-w-[8rem] w-full">
+            {currencyOptions.map((option) => (
+              <button
+                key={option.code}
+                className={`w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#23232A] rounded flex items-center gap-2 ${currency === option.code ? 'font-bold text-primary' : ''}`}
+                onClick={() => setCurrency(option.code)}
+              >
+                <span>{option.symbol}</span>
+                <span>{option.code}</span>
+                <span className="ml-auto text-xs text-gray-500">{option.name}</span>
+              </button>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <DropdownMenu>
           <DropdownMenuTrigger className="focus:outline-none">

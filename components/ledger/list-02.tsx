@@ -1,3 +1,5 @@
+"use client"
+
 import { cn } from "@/lib/utils"
 import {
   ArrowUpRight,
@@ -8,6 +10,7 @@ import {
   type LucideIcon,
   ArrowRight,
 } from "lucide-react"
+import { useFinancialData } from "@/context/financial-data-context"
 
 interface Transaction {
   id: string
@@ -96,6 +99,21 @@ const TRANSACTIONS: Transaction[] = [
 ]
 
 export default function List02({ transactions = TRANSACTIONS, className }: List02Props) {
+  const { currency } = useFinancialData()
+  const currencyOptions = [
+    { code: "INR", symbol: "₹" },
+    { code: "USD", symbol: "$" },
+    { code: "EUR", symbol: "€" },
+    { code: "GBP", symbol: "£" },
+    { code: "AUD", symbol: "A$" },
+    { code: "CAD", symbol: "C$" },
+    { code: "SGD", symbol: "S$" },
+    { code: "JPY", symbol: "¥" },
+    { code: "CNY", symbol: "¥" },
+    { code: "ZAR", symbol: "R" },
+  ]
+  const currencySymbol = currencyOptions.find((c) => c.code === currency)?.symbol || "₹"
+
   return (
     <div
       className={cn(
@@ -152,7 +170,7 @@ export default function List02({ transactions = TRANSACTIONS, className }: List0
                     )}
                   >
                     {transaction.type === "incoming" ? "+" : "-"}
-                    {transaction.amount}
+                    {currencySymbol}{Number(transaction.amount.replace(/[^0-9.]/g, "")).toLocaleString("en-IN")}
                   </span>
                   {transaction.type === "incoming" ? (
                     <ArrowDownLeft className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />

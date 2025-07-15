@@ -15,7 +15,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import AddEditAccountDialog from "../dialogs/add-edit-account-dialog"
-import { useFinancialData } from "@/context/financial-data-context" // Import useFinancialData
+import { useFinancialData } from "@/context/financial-data-context"
 
 interface AccountItem {
   id: string
@@ -30,15 +30,29 @@ interface List01Props {
 }
 
 export default function List01({ className }: List01Props) {
-  const { accounts, addAccount, updateAccount } = useFinancialData() // Use data from context
+  const { accounts, addAccount, updateAccount, currency } = useFinancialData()
   const [isAddEditAccountDialogOpen, setIsAddEditAccountDialogOpen] = useState(false)
   const [editingAccount, setEditingAccount] = useState<AccountItem | null>(null)
 
+  const currencyOptions = [
+    { code: "INR", symbol: "₹" },
+    { code: "USD", symbol: "$" },
+    { code: "EUR", symbol: "€" },
+    { code: "GBP", symbol: "£" },
+    { code: "AUD", symbol: "A$" },
+    { code: "CAD", symbol: "C$" },
+    { code: "SGD", symbol: "S$" },
+    { code: "JPY", symbol: "¥" },
+    { code: "CNY", symbol: "¥" },
+    { code: "ZAR", symbol: "R" },
+  ]
+  const currencySymbol = currencyOptions.find((c) => c.code === currency)?.symbol || "₹"
+
   const handleAddEditAccount = (account: AccountItem) => {
     if (account.id.startsWith("acc-")) {
-      addAccount(account) // Use context's addAccount
+      addAccount(account)
     } else {
-      updateAccount(account) // Use context's updateAccount
+      updateAccount(account)
     }
     setIsAddEditAccountDialogOpen(false)
     setEditingAccount(null)
@@ -54,9 +68,8 @@ export default function List01({ className }: List01Props) {
     setIsAddEditAccountDialogOpen(true)
   }
 
-  // Calculate total balance dynamically
   const currentTotalBalance =
-    '₹' +
+    currencySymbol +
     accounts
       .reduce((sum, acc) => {
         const balanceValue = Number.parseFloat(acc.balance.replace(/[^0-9.-]+/g, ""))
@@ -124,7 +137,7 @@ export default function List01({ className }: List01Props) {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-zinc-900 dark:text-zinc-100">{account.balance}</span>
+                <span className="text-xs font-medium text-zinc-900 dark:text-zinc-100">{currencySymbol}{Number(account.balance.replace(/[^0-9.]/g, "")).toLocaleString("en-IN")}</span>
                 <Button
                   variant="ghost"
                   size="icon"

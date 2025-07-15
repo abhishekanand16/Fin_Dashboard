@@ -20,6 +20,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
+import { useFinancialData } from "@/context/financial-data-context"
 
 interface ListItem {
   id: string
@@ -61,6 +62,21 @@ export default function AddEditEventDialog({ isOpen, onClose, onSubmit, initialD
   const [amount, setAmount] = useState(initialData?.amount || "")
   const [progress, setProgress] = useState(initialData?.progress?.toString() || "")
   const [status, setStatus] = useState<ListItem["status"]>(initialData?.status || "pending")
+
+  const { currency } = useFinancialData()
+  const currencyOptions = [
+    { code: "INR", symbol: "₹" },
+    { code: "USD", symbol: "$" },
+    { code: "EUR", symbol: "€" },
+    { code: "GBP", symbol: "£" },
+    { code: "AUD", symbol: "A$" },
+    { code: "CAD", symbol: "C$" },
+    { code: "SGD", symbol: "S$" },
+    { code: "JPY", symbol: "¥" },
+    { code: "CNY", symbol: "¥" },
+    { code: "ZAR", symbol: "R" },
+  ]
+  const currencySymbol = currencyOptions.find((c) => c.code === currency)?.symbol || "₹"
 
   useEffect(() => {
     if (initialData) {
@@ -168,13 +184,19 @@ export default function AddEditEventDialog({ isOpen, onClose, onSubmit, initialD
             <Label htmlFor="amount" className="text-right">
               Amount
             </Label>
-            <Input
-              id="amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="col-span-3"
-              placeholder="₹0.00"
-            />
+            <div className="col-span-3 flex items-center gap-2">
+              <span className="inline-block text-lg font-medium text-gray-700 dark:text-gray-200">{currencySymbol}</span>
+              <Input
+                id="amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
+                className="flex-1"
+                type="text"
+                inputMode="decimal"
+                pattern="[0-9.]*"
+                placeholder="0.00"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="progress" className="text-right">

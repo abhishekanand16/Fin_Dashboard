@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useState, useEffect } from "react"
+import { useFinancialData } from "@/context/financial-data-context"
 
 interface AccountItem {
   id: string
@@ -34,6 +35,20 @@ export default function AddEditAccountDialog({ isOpen, onClose, onSubmit, initia
   const [description, setDescription] = useState(initialData?.description || "")
   const [balance, setBalance] = useState(initialData?.balance || "")
   const [type, setType] = useState<AccountItem["type"]>(initialData?.type || "checking")
+  const { currency } = useFinancialData()
+  const currencyOptions = [
+    { code: "INR", symbol: "₹" },
+    { code: "USD", symbol: "$" },
+    { code: "EUR", symbol: "€" },
+    { code: "GBP", symbol: "£" },
+    { code: "AUD", symbol: "A$" },
+    { code: "CAD", symbol: "C$" },
+    { code: "SGD", symbol: "S$" },
+    { code: "JPY", symbol: "¥" },
+    { code: "CNY", symbol: "¥" },
+    { code: "ZAR", symbol: "R" },
+  ]
+  const currencySymbol = currencyOptions.find((c) => c.code === currency)?.symbol || "₹"
 
   useEffect(() => {
     if (initialData) {
@@ -92,14 +107,19 @@ export default function AddEditAccountDialog({ isOpen, onClose, onSubmit, initia
             <Label htmlFor="balance" className="text-right">
               Balance
             </Label>
-            <Input
-              id="balance"
-              value={balance}
-              onChange={(e) => setBalance(e.target.value)}
-              className="col-span-3"
-              type="text" // Use text to allow for currency symbols, or number if strictly numeric
-              placeholder="₹0.00"
-            />
+            <div className="col-span-3 flex items-center gap-2">
+              <span className="inline-block text-lg font-medium text-gray-700 dark:text-gray-200">{currencySymbol}</span>
+              <Input
+                id="balance"
+                value={balance}
+                onChange={(e) => setBalance(e.target.value.replace(/[^0-9.]/g, ""))}
+                className="flex-1"
+                type="text"
+                inputMode="decimal"
+                pattern="[0-9.]*"
+                placeholder="0.00"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="type" className="text-right">

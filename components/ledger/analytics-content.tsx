@@ -46,7 +46,7 @@ const accountTypeColors: { [key: string]: string } = {
 }
 
 export default function AnalyticsContent() {
-  const { accounts } = useFinancialData() // Get accounts from context
+  const { accounts, currency } = useFinancialData() // Get accounts and currency from context
 
   // Dynamically derive category data from accounts
   const categoryData = accounts.reduce(
@@ -84,6 +84,20 @@ export default function AnalyticsContent() {
     {} as Record<string, { label: string; color: string }>,
   )
 
+  const currencyOptions = [
+    { code: "INR", symbol: "₹" },
+    { code: "USD", symbol: "$" },
+    { code: "EUR", symbol: "€" },
+    { code: "GBP", symbol: "£" },
+    { code: "AUD", symbol: "A$" },
+    { code: "CAD", symbol: "C$" },
+    { code: "SGD", symbol: "S$" },
+    { code: "JPY", symbol: "¥" },
+    { code: "CNY", symbol: "¥" },
+    { code: "ZAR", symbol: "R" },
+  ]
+  const currencySymbol = currencyOptions.find((c) => c.code === currency)?.symbol || "₹";
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Analytics Overview</h1>
@@ -96,7 +110,7 @@ export default function AnalyticsContent() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹82,000</div>
+            <div className="text-2xl font-bold">{currencySymbol}{(82000).toLocaleString("en-IN")}</div>
             <p className="text-xs text-muted-foreground">+20.1% from last month</p>
             <ChartContainer
               config={{
@@ -133,7 +147,7 @@ export default function AnalyticsContent() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹38,500</div>
+            <div className="text-2xl font-bold">{currencySymbol}{(38500).toLocaleString("en-IN")}</div>
             <p className="text-xs text-muted-foreground">-5.2% from last month</p>
             <ChartContainer
               config={{

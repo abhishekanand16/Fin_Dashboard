@@ -109,6 +109,8 @@ interface FinancialDataContextType {
   events: ListItem[]
   addEvent: (event: ListItem) => void
   updateEvent: (event: ListItem) => void
+  currency: string
+  setCurrency: (currency: string) => void
 }
 
 const FinancialDataContext = createContext<FinancialDataContextType | undefined>(undefined)
@@ -116,6 +118,7 @@ const FinancialDataContext = createContext<FinancialDataContextType | undefined>
 export function FinancialDataProvider({ children }: { children: ReactNode }) {
   const [accounts, setAccounts] = useState<AccountItem[]>(INITIAL_ACCOUNTS)
   const [events, setEvents] = useState<ListItem[]>(INITIAL_EVENTS)
+  const [currency, setCurrency] = useState<string>("INR")
 
   const addAccount = useCallback((newAccount: AccountItem) => {
     setAccounts((prev) => [...prev, newAccount])
@@ -134,7 +137,7 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <FinancialDataContext.Provider value={{ accounts, addAccount, updateAccount, events, addEvent, updateEvent }}>
+    <FinancialDataContext.Provider value={{ accounts, addAccount, updateAccount, events, addEvent, updateEvent, currency, setCurrency }}>
       {children}
     </FinancialDataContext.Provider>
   )

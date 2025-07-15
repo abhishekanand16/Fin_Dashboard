@@ -86,7 +86,7 @@ export default function Sidebar() {
                 alt="Ledger logo"
                 width={32}
                 height={32}
-                className="flex-shrink-0"
+                className="flex-shrink-0 rounded-full object-cover"
               />
               <span className="text-lg font-semibold hover:cursor-pointer text-gray-900 dark:text-white">
                 Ledger

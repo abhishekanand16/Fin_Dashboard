@@ -25,12 +25,14 @@ interface List03Props {
   className?: string
 }
 
+// Update iconStyles for more vibrant icon colors
 const iconStyles = {
-  savings: "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100",
-  investment: "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100",
-  debt: "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100",
+  savings: "bg-white/80 dark:bg-white/20 text-green-700 dark:text-green-200",
+  investment: "bg-white/80 dark:bg-white/20 text-blue-700 dark:text-blue-200",
+  debt: "bg-white/80 dark:bg-white/20 text-pink-700 dark:text-pink-200",
 }
 
+// Add overdue status config
 const statusConfig = {
   pending: {
     icon: Timer,
@@ -47,6 +49,11 @@ const statusConfig = {
     class: "text-emerald-600 dark:text-emerald-400",
     bg: "bg-emerald-100 dark:bg-emerald-900/30",
   },
+  overdue: {
+    icon: AlertCircle,
+    class: "text-red-600 dark:text-red-400",
+    bg: "bg-red-100 dark:bg-red-900/30",
+  },
 }
 
 // Map icon string to component
@@ -57,16 +64,27 @@ const iconMap = {
   // Add more icons here if needed
 }
 
+// Colorful gradient for the progress bar
+const progressBarGradient = "bg-gradient-to-r from-pink-500 via-yellow-400 to-green-500 dark:from-pink-400 dark:via-yellow-300 dark:to-green-400"
+
+// Function to get progress bar color based on percent
+function getProgressBarColor(progress: number) {
+  if (progress === 100) return "bg-emerald-500 dark:bg-emerald-400"
+  if (progress >= 70) return "bg-green-500 dark:bg-green-400"
+  if (progress >= 40) return "bg-yellow-400 dark:bg-yellow-300"
+  return "bg-red-500 dark:bg-red-400"
+}
+
 export default function List03({ className }: List03Props) {
   const { events, addEvent, updateEvent, deleteEvent } = useFinancialData() // Use data from context
   const [isAddEditEventDialogOpen, setIsAddEditEventDialogOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<ListItem | null>(null)
 
   const handleAddEditEvent = (event: ListItem) => {
-    if (event.id.startsWith("evt-")) {
-      addEvent(event) // Use context's addEvent
+    if (editingEvent) {
+      updateEvent(event)
     } else {
-      updateEvent(event) // Use context's updateEvent
+      addEvent(event)
     }
     setIsAddEditEventDialogOpen(false)
     setEditingEvent(null)
@@ -122,24 +140,38 @@ export default function List03({ className }: List03Props) {
                 "border border-zinc-100 dark:border-zinc-800",
                 "hover:border-zinc-200 dark:hover:border-zinc-700",
                 "transition-all duration-200",
-                "shadow-sm backdrop-blur-xl",
+                "shadow-lg backdrop-blur-xl",
               )}
             >
               <div className="p-4 space-y-3">
                 <div className="flex items-start justify-between">
-                  <div className={cn("p-2 rounded-lg", iconStyles[item.iconStyle as keyof typeof iconStyles])}>
-                    {IconComponent && <IconComponent className="w-4 h-4" />}
+                  <div className={cn("p-2 rounded-lg shadow-md", iconStyles[item.iconStyle as keyof typeof iconStyles])}>
+                    {IconComponent && <IconComponent className="w-6 h-6" />}
                   </div>
                   <div className="flex items-center gap-2">
                     <div
                       className={cn(
                         "px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1.5",
-                        statusConfig[item.status].bg,
-                        statusConfig[item.status].class,
+                        (typeof item.progress === 'number' && item.progress === 100)
+                          ? statusConfig.completed.bg + " " + statusConfig.completed.class
+                          : (isOverdue && typeof item.progress === 'number' && item.progress < 100)
+                            ? statusConfig.overdue.bg + " " + statusConfig.overdue.class
+                            : statusConfig[item.status].bg + " " + statusConfig[item.status].class,
                       )}
                     >
-                      {React.createElement(statusConfig[item.status].icon, { className: "w-3.5 h-3.5" })}
-                      {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                      {React.createElement(
+                        (typeof item.progress === 'number' && item.progress === 100)
+                          ? statusConfig.completed.icon
+                          : (isOverdue && typeof item.progress === 'number' && item.progress < 100)
+                            ? statusConfig.overdue.icon
+                            : statusConfig[item.status].icon,
+                        { className: "w-3.5 h-3.5" }
+                      )}
+                      {(typeof item.progress === 'number' && item.progress === 100)
+                        ? "Completed"
+                        : (isOverdue && typeof item.progress === 'number' && item.progress < 100)
+                          ? "Overdue"
+                          : item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                     </div>
                     <Button
                       variant="ghost"
@@ -175,7 +207,10 @@ export default function List03({ className }: List03Props) {
                     </div>
                     <div className="h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-zinc-900 dark:bg-zinc-100 rounded-full"
+                        className={cn(
+                          "h-full rounded-full transition-all duration-300",
+                          getProgressBarColor(item.progress)
+                        )}
                         style={{ width: `${item.progress}%` }}
                       />
                     </div>
@@ -205,17 +240,28 @@ export default function List03({ className }: List03Props) {
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center text-zinc-600 dark:text-zinc-400">
                     <Calendar className="w-3.5 h-3.5 mr-1.5" />
-                    <span>{formatTargetDate(item.targetDate)}</span>
+                    <span
+                      className={cn(
+                        item.progress === 100 && "line-through text-zinc-400 dark:text-zinc-600 opacity-60"
+                      )}
+                    >
+                      {formatTargetDate(item.targetDate)}
+                    </span>
                   </div>
-                  <div className={cn(
-                    "text-xs font-medium",
-                    isOverdue ? "text-red-600 dark:text-red-400" : 
-                    isToday ? "text-orange-600 dark:text-orange-400" : 
-                    "text-zinc-600 dark:text-zinc-400"
-                  )}>
-                    {isOverdue ? `${Math.abs(daysRemaining)} days overdue` :
-                     isToday ? "Due today" :
-                     `${daysRemaining} days left`}
+                  <div
+                    className={cn(
+                      "text-xs font-medium",
+                      isOverdue ? "text-red-600 dark:text-red-400" : 
+                      isToday ? "text-orange-600 dark:text-orange-400" : 
+                      "text-zinc-600 dark:text-zinc-400",
+                      item.progress === 100 && "line-through text-zinc-400 dark:text-zinc-600 opacity-60"
+                    )}
+                  >
+                    {item.progress === 100
+                      ? "Completed"
+                      : isOverdue ? `${Math.abs(daysRemaining)} days overdue` :
+                        isToday ? "Due today" :
+                        `${daysRemaining} days left`}
                   </div>
                 </div>
               </div>

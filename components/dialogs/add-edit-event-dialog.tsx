@@ -98,6 +98,15 @@ export default function AddEditEventDialog({ isOpen, onClose, onSubmit, initialD
     }
   }, [initialData, isOpen])
 
+  useEffect(() => {
+    const progressNum = Number(progress)
+    if (progressNum === 100 && status !== "completed") {
+      setStatus("completed")
+    } else if (progressNum < 100 && status === "completed") {
+      setStatus("in-progress")
+    }
+  }, [progress])
+
   function handleSubmit() {
     const selectedIcon = iconOptions.find((opt) => opt.value === selectedIconValue)
     const newEvent: ListItem = {
@@ -205,10 +214,18 @@ export default function AddEditEventDialog({ isOpen, onClose, onSubmit, initialD
             <Input
               id="progress"
               value={progress}
-              onChange={(e) => setProgress(e.target.value)}
+              onChange={(e) => {
+                let val = e.target.value.replace(/[^0-9]/g, "")
+                if (val) {
+                  let num = Math.max(1, Math.min(100, parseInt(val)))
+                  setProgress(num.toString())
+                } else {
+                  setProgress("")
+                }
+              }}
               className="col-span-3"
               type="number"
-              min="0"
+              min="1"
               max="100"
             />
           </div>

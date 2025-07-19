@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import {
   BarChart2,
   Receipt,
-  Building2,
+  Target,
   CreditCard,
   Folder,
   Wallet,
@@ -107,8 +107,8 @@ export default function Sidebar() {
                   <NavItem href="/analytics" icon={BarChart2}>
                     Analytics
                   </NavItem>
-                  <NavItem href="/organization" icon={Building2}>
-                    Organization
+                  <NavItem href="/organization" icon={Target}>
+                    Goals
                   </NavItem>
                   <NavItem href="/projects" icon={Folder}>
                     Projects

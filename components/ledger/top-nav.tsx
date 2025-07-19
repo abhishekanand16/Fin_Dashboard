@@ -1,12 +1,16 @@
 "use client"
 
+import React from "react"
+import { usePathname } from "next/navigation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Bell, ChevronRight } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import Profile01 from "./profile-01"
 import Link from "next/link"
 import { ThemeToggle } from "../theme-toggle"
-import { usePathname } from "next/navigation"
 import { useFinancialData } from "@/context/financial-data-context"
+import { useUser } from "@/context/user-context"
+import { useState, useEffect } from "react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface BreadcrumbItem {
   label: string
@@ -15,7 +19,19 @@ interface BreadcrumbItem {
 
 export default function TopNav() {
   const pathname = usePathname()
-  const { currency, setCurrency } = useFinancialData()
+  const { currency, setCurrency, clearUserData } = useFinancialData()
+  const { user, logout } = useUser()
+  const [profilePicture, setProfilePicture] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (user) {
+      const savedPicture = localStorage.getItem(`profile_picture_${user}`)
+      if (savedPicture) {
+        setProfilePicture(savedPicture)
+      }
+    }
+  }, [user])
+
   const currencyOptions = [
     { code: "INR", symbol: "₹", name: "Indian Rupee" },
     { code: "USD", symbol: "$", name: "US Dollar" },
@@ -31,11 +47,11 @@ export default function TopNav() {
 
   const generateBreadcrumbs = () => {
     const pathSegments = pathname.split("/").filter((segment) => segment !== "")
-    const breadcrumbs: BreadcrumbItem[] = [{ label: "Home", href: "/" }] // Start with a Home link
+    const breadcrumbs: BreadcrumbItem[] = [{ label: "Home", href: "/" }]
 
     pathSegments.forEach((segment, index) => {
       const href = "/" + pathSegments.slice(0, index + 1).join("/")
-      const label = segment.charAt(0).toUpperCase() + segment.slice(1) // Capitalize first letter
+      const label = segment.charAt(0).toUpperCase() + segment.slice(1)
       breadcrumbs.push({ label, href })
     })
 
@@ -50,7 +66,7 @@ export default function TopNav() {
         {breadcrumbs.map((item, index) => (
           <div key={item.label} className="flex items-center">
             {index > 0 && <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400 mx-1" />}
-            {item.href && index < breadcrumbs.length - 1 ? ( // Only link if not the last item
+            {item.href && index < breadcrumbs.length - 1 ? (
               <Link
                 href={item.href}
                 className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
@@ -65,42 +81,29 @@ export default function TopNav() {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4 ml-auto sm:ml-0">
-        <button
-          type="button"
-          className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-[#1F1F23] rounded-full transition-colors"
-        >
-          <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 dark:text-gray-300" />
-        </button>
+        <Select value={currency} onValueChange={setCurrency}>
+          <SelectTrigger className="w-[120px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+            {currencyOptions.map((option) => (
+              <SelectItem key={option.code} value={option.code}>
+                {option.symbol} {option.code}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         <ThemeToggle />
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="focus:outline-none px-3 py-1 rounded-md border border-gray-200 dark:border-[#2B2B30] bg-white dark:bg-[#18181B] text-sm font-medium flex items-center gap-2 min-w-[8rem]">
-            {currencyOptions.find((c) => c.code === currency)?.symbol || "₹"} {currency}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" sideOffset={0} className="min-w-[8rem] w-full">
-            {currencyOptions.map((option) => (
-              <button
-                key={option.code}
-                className={`w-full text-left px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#23232A] rounded flex items-center gap-2 ${currency === option.code ? 'font-bold text-primary' : ''}`}
-                onClick={() => setCurrency(option.code)}
-              >
-                <span>{option.symbol}</span>
-                <span>{option.code}</span>
-                <span className="ml-auto text-xs text-gray-500">{option.name}</span>
-              </button>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <DropdownMenu>
           <DropdownMenuTrigger className="focus:outline-none">
             <img
-              src="https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"
+              src={profilePicture || "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"}
               alt="User avatar"
               width={32}
               height={32}
-              className="rounded-full ring-2 ring-gray-200 dark:ring-[#2B2B30] sm:w-8 sm:h-8 cursor-pointer"
+              className="rounded-full ring-2 ring-gray-200 dark:ring-[#2B2B30] sm:w-8 sm:h-8 cursor-pointer object-cover"
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -108,7 +111,31 @@ export default function TopNav() {
             sideOffset={8}
             className="w-[280px] sm:w-80 bg-background border-border rounded-lg shadow-lg"
           >
-            <Profile01 avatar="https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png" />
+            <Profile01 avatar={profilePicture || "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"} name={user || undefined} />
+            {user && (
+              <div className="px-4 py-3 border-t border-gray-200 dark:border-zinc-800 flex flex-col gap-2">
+                <div className="text-xs text-zinc-500 truncate">{user}</div>
+                <div className="flex gap-2">
+                  <button
+                    className="bg-red-500 hover:bg-red-600 text-white rounded px-3 py-1 text-xs font-semibold transition-colors"
+                    onClick={logout}
+                  >
+                    Logout
+                  </button>
+                  <button
+                    className="bg-orange-500 hover:bg-orange-600 text-white rounded px-3 py-1 text-xs font-semibold transition-colors"
+                    onClick={() => {
+                      if (confirm("This will clear all your data. Are you sure?")) {
+                        clearUserData()
+                        alert("Data cleared! You can now add new events without duplicate ID issues.")
+                      }
+                    }}
+                  >
+                    Clear Data
+                  </button>
+                </div>
+              </div>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

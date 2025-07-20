@@ -7,7 +7,7 @@ export default function DashboardContent() {
   return (
     <div className="p-6 space-y-4">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-black/90 rounded-xl p-6 flex flex-col border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm">
+        <div className="bg-white dark:bg-black/90 rounded-xl p-6 flex flex-col border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 text-left flex items-center gap-2 ">
             <Wallet className="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-50" />
             Accounts
@@ -16,7 +16,7 @@ export default function DashboardContent() {
             <List01 className="h-full" />
           </div>
         </div>
-        <div className="bg-black/90 rounded-xl p-6 flex flex-col border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm">
+        <div className="bg-white dark:bg-black/90 rounded-xl p-6 flex flex-col border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 text-left flex items-center gap-2">
             <CreditCard className="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-50" />
             Recent Transactions
@@ -27,7 +27,7 @@ export default function DashboardContent() {
         </div>
       </div>
 
-      <div className="bg-black/90 rounded-xl p-6 flex flex-col items-start justify-start border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm">
+      <div className="bg-white dark:bg-black/90 rounded-xl p-6 flex flex-col items-start justify-start border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm">
         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 text-left flex items-center gap-2">
           <Calendar className="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-50" />
           Goals

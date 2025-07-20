@@ -17,9 +17,10 @@ import {
   Settings,
   HelpCircle,
   Menu,
+  Home,
+  TrendingUp,
 } from "lucide-react"
 
-import { Home } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 
@@ -129,6 +130,9 @@ export default function Sidebar() {
                   </NavItem>
                   <NavItem href="/payments" icon={CreditCard}>
                     Payments
+                  </NavItem>
+                  <NavItem href="/stocks" icon={TrendingUp}>
+                    Stocks
                   </NavItem>
                 </div>
               </div>

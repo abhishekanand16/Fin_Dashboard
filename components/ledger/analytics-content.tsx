@@ -46,7 +46,27 @@ const accountTypeColors: { [key: string]: string } = {
 }
 
 export default function AnalyticsContent() {
-  const { accounts, currency } = useFinancialData() // Get accounts and currency from context
+  const { accounts, currency, revenueData, expensesData, salaryAmount, monthlyExpenseAmount } = useFinancialData() // Get data from context
+
+  // Calculate totals from user data
+  const totalRevenue = revenueData.reduce((sum, item) => sum + (item.revenue || 0), 0)
+  const totalExpenses = expensesData.reduce((sum, item) => sum + (item.expenses || 0), 0)
+
+  // Use salary as monthly revenue if no revenue data exists
+  const effectiveRevenue = salaryAmount > 0 && revenueData.length === 0 ? salaryAmount : totalRevenue
+  const revenueDescription = salaryAmount > 0 && revenueData.length === 0 
+    ? "Monthly salary as revenue" 
+    : revenueData.length > 0 
+      ? `${revenueData.length} months of data` 
+      : "No revenue data"
+
+  // Use monthly expense as expenses if no expenses data exists
+  const effectiveExpenses = monthlyExpenseAmount > 0 && expensesData.length === 0 ? monthlyExpenseAmount : totalExpenses
+  const expensesDescription = monthlyExpenseAmount > 0 && expensesData.length === 0 
+    ? "Monthly expenses" 
+    : expensesData.length > 0 
+      ? `${expensesData.length} months of data` 
+      : "No expenses data"
 
   // Dynamically derive category data from accounts
   const categoryData = accounts.reduce(
@@ -99,7 +119,7 @@ export default function AnalyticsContent() {
   const currencySymbol = currencyOptions.find((c) => c.code === currency)?.symbol || "₹";
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Analytics Overview</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -110,8 +130,10 @@ export default function AnalyticsContent() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currencySymbol}{(82000).toLocaleString("en-IN")}</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+            <div className="text-2xl font-bold">{currencySymbol}{effectiveRevenue.toLocaleString("en-IN")}</div>
+            <p className="text-xs text-muted-foreground">
+              {revenueDescription}
+            </p>
             <ChartContainer
               config={{
                 revenue: {
@@ -147,8 +169,10 @@ export default function AnalyticsContent() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currencySymbol}{(38500).toLocaleString("en-IN")}</div>
-            <p className="text-xs text-muted-foreground">-5.2% from last month</p>
+            <div className="text-2xl font-bold">{currencySymbol}{effectiveExpenses.toLocaleString("en-IN")}</div>
+            <p className="text-xs text-muted-foreground">
+              {expensesDescription}
+            </p>
             <ChartContainer
               config={{
                 expenses: {

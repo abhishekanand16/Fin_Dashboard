@@ -20,7 +20,7 @@ interface AccountItem {
   title: string
   description?: string
   balance: string
-  type: "savings" | "checking" | "investment" | "debt"
+  type: "savings" | "checking" | "investment" | "debt" | "salary"
 }
 
 interface AddEditAccountDialogProps {
@@ -134,6 +134,7 @@ export default function AddEditAccountDialog({ isOpen, onClose, onSubmit, initia
                 <SelectItem value="savings">Savings</SelectItem>
                 <SelectItem value="investment">Investment</SelectItem>
                 <SelectItem value="debt">Debt</SelectItem>
+                <SelectItem value="salary">Salary</SelectItem>
               </SelectContent>
             </Select>
           </div>

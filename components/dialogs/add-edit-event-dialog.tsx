@@ -26,9 +26,9 @@ interface ListItem {
   id: string
   title: string
   subtitle: string
-  icon: any // LucideIcon type
+  icon: string // Store as string instead of LucideIcon
   iconStyle: string
-  date: string
+  targetDate: string // Change from date to targetDate for completion
   time?: string
   amount?: string
   status: "pending" | "in-progress" | "completed"
@@ -57,8 +57,8 @@ const statusOptions = [
 export default function AddEditEventDialog({ isOpen, onClose, onSubmit, initialData }: AddEditEventDialogProps) {
   const [title, setTitle] = useState(initialData?.title || "")
   const [subtitle, setSubtitle] = useState(initialData?.subtitle || "")
-  const [selectedIconValue, setSelectedIconValue] = useState(initialData?.icon.displayName || "PiggyBank")
-  const [date, setDate] = useState<Date | undefined>(initialData?.date ? new Date(initialData.date) : undefined)
+  const [selectedIconValue, setSelectedIconValue] = useState(initialData?.icon || "PiggyBank")
+  const [targetDate, setTargetDate] = useState<Date | undefined>(initialData?.targetDate ? new Date(initialData.targetDate) : undefined)
   const [amount, setAmount] = useState(initialData?.amount || "")
   const [progress, setProgress] = useState(initialData?.progress?.toString() || "")
   const [status, setStatus] = useState<ListItem["status"]>(initialData?.status || "pending")
@@ -82,8 +82,8 @@ export default function AddEditEventDialog({ isOpen, onClose, onSubmit, initialD
     if (initialData) {
       setTitle(initialData.title)
       setSubtitle(initialData.subtitle)
-      setSelectedIconValue(initialData.icon.displayName || "PiggyBank")
-      setDate(initialData.date ? new Date(initialData.date) : undefined)
+      setSelectedIconValue(initialData.icon || "PiggyBank")
+      setTargetDate(initialData.targetDate ? new Date(initialData.targetDate) : undefined)
       setAmount(initialData.amount || "")
       setProgress(initialData.progress?.toString() || "")
       setStatus(initialData.status)
@@ -91,22 +91,31 @@ export default function AddEditEventDialog({ isOpen, onClose, onSubmit, initialD
       setTitle("")
       setSubtitle("")
       setSelectedIconValue("PiggyBank")
-      setDate(undefined)
+      setTargetDate(undefined)
       setAmount("")
       setProgress("")
       setStatus("pending")
     }
   }, [initialData, isOpen])
 
+  useEffect(() => {
+    const progressNum = Number(progress)
+    if (progressNum === 100 && status !== "completed") {
+      setStatus("completed")
+    } else if (progressNum < 100 && status === "completed") {
+      setStatus("in-progress")
+    }
+  }, [progress])
+
   function handleSubmit() {
     const selectedIcon = iconOptions.find((opt) => opt.value === selectedIconValue)
     const newEvent: ListItem = {
-      id: initialData?.id || `evt-${Date.now()}`,
+      id: initialData?.id || `evt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       title,
       subtitle,
-      icon: selectedIcon?.icon || PiggyBank,
+      icon: selectedIconValue, // Store as string instead of component
       iconStyle: selectedIcon?.style || "savings",
-      date: date ? format(date, "MMM yyyy") : "", // Format date for display
+      targetDate: targetDate ? targetDate.toISOString() : "", // Store as ISO string
       amount: amount || undefined,
       status,
       progress: progress ? Number.parseInt(progress) : undefined,
@@ -119,9 +128,9 @@ export default function AddEditEventDialog({ isOpen, onClose, onSubmit, initialD
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
         <DialogHeader>
-          <DialogTitle>{initialData ? "Edit Event" : "Add New Event"}</DialogTitle>
+          <DialogTitle>{initialData ? "Edit Goal" : "Add New Goal"}</DialogTitle>
           <DialogDescription>
-            {initialData ? "Make changes to your event here." : "Add a new upcoming event."}
+            {initialData ? "Make changes to your goal here." : "Add a new financial goal with a target completion date."}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -163,20 +172,20 @@ export default function AddEditEventDialog({ isOpen, onClose, onSubmit, initialD
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="date" className="text-right">
-              Date
+              Target Date
             </Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
-                  className={cn("col-span-3 justify-start text-left font-normal", !date && "text-muted-foreground")}
+                  className={cn("col-span-3 justify-start text-left font-normal", !targetDate && "text-muted-foreground")}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  {targetDate ? format(targetDate, "PPP") : <span>Pick a target date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
-                <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
+                <Calendar mode="single" selected={targetDate} onSelect={setTargetDate} initialFocus />
               </PopoverContent>
             </Popover>
           </div>
@@ -205,10 +214,18 @@ export default function AddEditEventDialog({ isOpen, onClose, onSubmit, initialD
             <Input
               id="progress"
               value={progress}
-              onChange={(e) => setProgress(e.target.value)}
+              onChange={(e) => {
+                let val = e.target.value.replace(/[^0-9]/g, "")
+                if (val) {
+                  let num = Math.max(1, Math.min(100, parseInt(val)))
+                  setProgress(num.toString())
+                } else {
+                  setProgress("")
+                }
+              }}
               className="col-span-3"
               type="number"
-              min="0"
+              min="1"
               max="100"
             />
           </div>
@@ -234,7 +251,7 @@ export default function AddEditEventDialog({ isOpen, onClose, onSubmit, initialD
         </div>
         <DialogFooter>
           <Button type="submit" onClick={handleSubmit}>
-            {initialData ? "Save changes" : "Add Event"}
+            {initialData ? "Save changes" : "Add Goal"}
           </Button>
         </DialogFooter>
       </DialogContent>

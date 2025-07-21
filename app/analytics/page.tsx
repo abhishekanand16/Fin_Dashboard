@@ -1,10 +1,9 @@
 import AnalyticsContent from "@/components/ledger/analytics-content"
-import Layout from "@/components/ledger/layout"
 
 export default function AnalyticsPage() {
   return (
-    <Layout>
+    <div className="p-6">
       <AnalyticsContent />
-    </Layout>
+    </div>
   )
 }

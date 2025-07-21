@@ -1,6 +1,8 @@
 import type React from "react"
-import { LogOut, MoveUpRight, Settings, CreditCard, FileText } from "lucide-react"
+import { LogOut, MoveUpRight, Settings, CreditCard, FileText, HelpCircle } from "lucide-react"
 import Link from "next/link"
+import { useUser } from "@/context/user-context"
+import { useState, useEffect } from "react"
 
 interface MenuItem {
   label: string
@@ -11,8 +13,8 @@ interface MenuItem {
 }
 
 interface Profile01Props {
-  name: string
-  role: string
+  name?: string
+  role?: string
   avatar: string
   subscription?: string
 }
@@ -25,11 +27,23 @@ const defaultProfile = {
 } satisfies Required<Profile01Props>
 
 export default function Profile01({
-  name = defaultProfile.name,
+  name,
   role = defaultProfile.role,
   avatar = defaultProfile.avatar,
   subscription = defaultProfile.subscription,
 }: Partial<Profile01Props> = defaultProfile) {
+  const { user, logout } = useUser()
+  const [profilePicture, setProfilePicture] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (user) {
+      const savedPicture = localStorage.getItem(`profile_picture_${user}`)
+      if (savedPicture) {
+        setProfilePicture(savedPicture)
+      }
+    }
+  }, [user])
+
   const menuItems: MenuItem[] = [
     {
       label: "Subscription",
@@ -40,7 +54,7 @@ export default function Profile01({
     },
     {
       label: "Settings",
-      href: "#",
+      href: "/settings",
       icon: <Settings className="w-4 h-4" />,
     },
     {
@@ -49,7 +63,16 @@ export default function Profile01({
       icon: <FileText className="w-4 h-4" />,
       external: true,
     },
+    {
+      label: "Help",
+      href: "/help",
+      icon: <HelpCircle className="w-4 h-4" />,
+    },
   ]
+
+  const handleLogout = () => {
+    logout()
+  }
 
   return (
     <div className="w-full max-w-sm mx-auto">
@@ -58,19 +81,23 @@ export default function Profile01({
           <div className="flex items-center gap-4 mb-8">
             <div className="relative shrink-0">
               <img
-                src={avatar || "/placeholder.svg"}
-                alt={name}
+                src={profilePicture || avatar}
+                alt={name || user || "User"}
                 width={72}
                 height={72}
                 className="rounded-full ring-4 ring-white dark:ring-zinc-900 object-cover"
+                onError={(e) => {
+                  // Fallback to default avatar if image fails to load
+                  e.currentTarget.src = "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"
+                }}
               />
               <div className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-zinc-900" />
             </div>
 
             {/* Profile Info */}
             <div className="flex-1">
-              <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{name}</h2>
-              <p className="text-zinc-600 dark:text-zinc-400">{role}</p>
+              <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{name || user || "User"}</h2>
+              <p className="text-zinc-600 dark:text-zinc-400">{role || "none"}</p>
             </div>
           </div>
           <div className="h-px bg-zinc-200 dark:bg-zinc-800 my-6" />
@@ -96,6 +123,7 @@ export default function Profile01({
 
             <button
               type="button"
+              onClick={handleLogout}
               className="w-full flex items-center justify-between p-2 
                                 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 
                                 rounded-lg transition-colors duration-200"

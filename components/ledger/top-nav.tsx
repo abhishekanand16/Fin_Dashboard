@@ -63,11 +63,7 @@ export default function TopNav() {
   const breadcrumbs = generateBreadcrumbs()
 
   return (
-    <nav className={
-      style === "glass"
-        ? "px-3 sm:px-6 flex items-center justify-between bg-white/30 dark:bg-[#1F1F23]/30 backdrop-blur-xl shadow-lg border-0 h-full"
-        : "px-3 sm:px-6 flex items-center justify-between bg-white dark:bg-[#0F0F12] border-b border-gray-200 dark:border-[#1F1F23] h-full"
-    }>
+    <nav className="px-3 sm:px-6 flex items-center justify-between bg-white dark:bg-[#0F0F12] border-b border-gray-200 dark:border-[#1F1F23] h-full">
       <div className="font-medium text-sm flex items-center space-x-1 truncate max-w-[300px]">
         Dashboard
       </div>

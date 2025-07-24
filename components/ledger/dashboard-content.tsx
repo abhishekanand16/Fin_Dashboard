@@ -12,7 +12,7 @@ export default function DashboardContent() {
   const glassCard =
     "bg-white/60 dark:bg-[#1F1F23]/60 border-cyan-300/60 shadow-xl backdrop-blur-2xl rounded-2xl p-6 flex flex-col border"
   const glassTitle =
-    "text-lg font-bold mb-4 text-left flex items-center gap-2 text-blue-900 dark:text-blue-100 drop-shadow"
+    "text-lg font-bold mb-4 text-left flex items-center gap-2 text-gray-900 dark:text-white"
   const normalCard =
     "bg-white dark:bg-black/90 rounded-xl p-6 flex flex-col border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm"
   const normalTitle =

@@ -9,7 +9,7 @@ export default function GoalsPage() {
   const { style } = useStyle();
   const isGlass = style === "glass";
   return (
-    <div className={isGlass ? "p-6 max-w-4xl mx-auto bg-white/60 dark:bg-[#1F1F23]/60 border-cyan-300/60 shadow-xl backdrop-blur-2xl rounded-2xl" : "p-6 max-w-4xl mx-auto"}>
+    <div className={isGlass ? "p-6 max-w-4xl mx-auto bg-white/40 border border-cyan-200/40 shadow-lg backdrop-blur-2xl rounded-2xl" : "p-6 max-w-4xl mx-auto"}>
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <Target className="w-8 h-8 text-purple-600 dark:text-purple-400" />
@@ -20,7 +20,7 @@ export default function GoalsPage() {
         </p>
       </div>
 
-      <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+      <Card className={isGlass ? "bg-white/40 border border-cyan-200/40 shadow-lg backdrop-blur-2xl rounded-2xl" : "bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]"}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5" />

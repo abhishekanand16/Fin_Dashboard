@@ -49,7 +49,11 @@ export default function KiteCallback() {
           <p className="text-red-500">{error}</p>
           {rawError && (
             <pre className="bg-gray-100 text-xs p-2 mt-2 rounded overflow-x-auto">
-              {JSON.stringify(rawError, null, 2)}
+              {typeof rawError === "string"
+                ? rawError
+                : (rawError && typeof rawError === "object"
+                    ? JSON.stringify(rawError, null, 2)
+                    : String(rawError))}
             </pre>
           )}
         </div>

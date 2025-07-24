@@ -21,6 +21,7 @@ import {
   Calendar,
   Palette
 } from "lucide-react"
+
 import React, { memo } from "react"
 
 const UserManagementFAQ = memo(function UserManagementFAQ() {
@@ -336,8 +337,10 @@ const TroubleshootingFAQ = memo(function TroubleshootingFAQ() {
 })
 
 export default function HelpPage() {
+  const { style } = useStyle();
+  const isGlass = style === "glass";
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className={isGlass ? "p-6 max-w-4xl mx-auto bg-white/60 dark:bg-[#1F1F23]/60 border-cyan-300/60 shadow-xl backdrop-blur-2xl rounded-2xl" : "p-6 max-w-4xl mx-auto"}>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Help & Support</h1>
         <p className="text-gray-600 dark:text-gray-400">Find answers to common questions and learn how to use the Ledger Dashboard effectively.</p>

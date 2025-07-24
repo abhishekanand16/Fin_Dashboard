@@ -10,16 +10,16 @@ export default function DashboardContent() {
 
   // Glassmorphism classes
   const glassCard =
-    "bg-white/60 dark:bg-[#1F1F23]/60 border-cyan-300/60 shadow-xl backdrop-blur-2xl rounded-2xl p-6 flex flex-col border"
+    "bg-white/20 dark:bg-[#1F1F23]/60 border-cyan-400/60 shadow-2xl backdrop-blur-3xl rounded-2xl p-6 flex flex-col border"
   const glassTitle =
-    "text-lg font-bold mb-4 text-left flex items-center gap-2 text-blue-900 dark:text-blue-100 drop-shadow"
+    "text-lg font-bold mb-4 text-left flex items-center gap-2 text-gray-900 dark:text-white"
   const normalCard =
     "bg-white dark:bg-black/90 rounded-xl p-6 flex flex-col border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm"
   const normalTitle =
     "text-lg font-bold text-gray-900 dark:text-white mb-4 text-left flex items-center gap-2 "
 
   return (
-    <div className={isGlass ? "p-8 space-y-6 bg-gradient-to-br from-blue-300/60 via-cyan-200/60 to-blue-100/80 min-h-screen" : "p-6 space-y-4"}>
+    <div className={isGlass ? "p-8 space-y-6 min-h-screen bg-black/10" : "p-6 space-y-4"}>
       <div className={isGlass ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : "grid grid-cols-1 lg:grid-cols-2 gap-6"}>
         <div className={isGlass ? glassCard : normalCard}>
           <h2 className={isGlass ? glassTitle : normalTitle}>

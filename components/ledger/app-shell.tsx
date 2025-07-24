@@ -21,7 +21,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className={`relative flex h-screen ${(resolvedTheme || theme) === "dark" ? "dark" : ""}`}>
+    <div className={`relative flex h-screen ${(resolvedTheme || theme) === "dark" ? "dark" : ""} ${style === "glass" ? "bg-gradient-to-br from-blue-300/60 via-cyan-200/60 to-blue-100/80" : ""}` }>
       <Sidebar />
       <div className="w-full flex flex-1 flex-col relative z-10 overflow-hidden">
         {style !== "glass" && (
@@ -30,14 +30,14 @@ export default function AppShell({ children }: { children: ReactNode }) {
             className="pointer-events-none absolute inset-0 -z-10"
             style={{
               background: (resolvedTheme || theme) === "dark"
-                ? "radial-gradient(circle at 60% 20%, rgba(0, 255, 255, 0.32) 0, rgba(0, 255, 255, 0.18) 40%, transparent 80%)"
-                : "radial-gradient(circle at 60% 20%, rgba(0, 180, 255, 0.28) 0, rgba(0, 180, 255, 0.16) 40%, rgba(0, 180, 255, 0.08) 80%)",
-              filter: (resolvedTheme || theme) === "dark" ? "blur(80px)" : "blur(100px)",
+                ? "radial-gradient(circle at 55% 10%, rgba(0, 255, 255, 0.32) 0, rgba(0, 255, 255, 0.18) 40%, transparent 80%)"
+                : "radial-gradient(circle at 55% 10%, rgba(0, 212, 255, 0.45) 0, rgba(0, 128, 255, 0.25) 40%, rgba(0, 255, 200, 0.18) 70%, rgba(0, 255, 255, 0.12) 95%, transparent 100%)",
+              filter: (resolvedTheme || theme) === "dark" ? "blur(100px)" : "blur(220px)",
             }}
           />
         )}
         <header className={style === "glass"
-          ? "h-16 border-b border-cyan-200/40 bg-white/30 dark:bg-[#0F0F12]/30 backdrop-blur-xl shadow-lg z-20 relative"
+          ? "h-16 bg-transparent border-none shadow-none z-20 relative"
           : "h-16 border-b border-gray-200 dark:border-[#1F1F23] bg-white/60 dark:bg-[#0F0F12]/60 backdrop-blur-md shadow-sm"
         }>
           <TopNav />

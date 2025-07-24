@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useTheme } from "next-themes"
 import { useUser } from "@/context/user-context"
 import { useFinancialData } from "@/context/financial-data-context"
+import { useStyle } from "@/components/style-provider"
 import { 
   User, 
   DollarSign, 
@@ -28,6 +29,7 @@ import {
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme()
+  const { style, setStyle } = useStyle()
   const { user, updateUsername, updateProfilePicture } = useUser()
   const { 
     currency, 
@@ -297,6 +299,29 @@ export default function SettingsPage() {
                   >
                     <Monitor className="w-6 h-6" />
                     <span>System</span>
+                  </Button>
+                </div>
+              </div>
+              {/* Style Selection */}
+              <div className="space-y-4 mt-6">
+                <Label className="text-base font-medium">Style</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    variant={style === "normal" ? "default" : "outline"}
+                    onClick={() => setStyle("normal")}
+                    className="flex flex-col items-center gap-2 h-auto p-4"
+                  >
+                    <span className="w-6 h-6 rounded-full bg-gray-200 dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700" />
+                    <span>Normal</span>
+                  </Button>
+                  <Button
+                    variant={style === "glass" ? "default" : "outline"}
+                    onClick={() => setStyle("glass")}
+                    className="flex flex-col items-center gap-2 h-auto p-4 border-cyan-400 border-2"
+                    style={{ background: style === "glass" ? "rgba(34, 212, 238, 0.12)" : undefined }}
+                  >
+                    <span className="w-6 h-6 rounded-full bg-white/30 backdrop-blur border border-cyan-400" />
+                    <span className="font-semibold text-cyan-700 dark:text-cyan-200">Glass</span>
                   </Button>
                 </div>
               </div>

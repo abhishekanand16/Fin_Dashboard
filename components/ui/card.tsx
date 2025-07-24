@@ -1,20 +1,27 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { useStyle } from "@/components/style-provider"
 
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
-      className
-    )}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => {
+  const { style } = useStyle?.() || { style: "normal" }
+  const isGlass = style === "glass"
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        isGlass
+          ? "rounded-2xl border border-cyan-300/60 bg-white/60 dark:bg-[#1F1F23]/60 shadow-xl backdrop-blur-2xl"
+          : "rounded-lg border bg-card text-card-foreground shadow-sm",
+        className
+      )}
+      {...props}
+    />
+  )
+})
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<

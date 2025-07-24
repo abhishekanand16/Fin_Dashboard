@@ -22,9 +22,35 @@ export async function POST(req: NextRequest) {
         api_secret: KITE_API_SECRET as string,
       }).toString(),
     });
-    const sessionData = await sessionRes.json();
+    let sessionData;
+    if (!sessionRes.ok) {
+      const rawText = await sessionRes.text();
+      return NextResponse.json({
+        error: "Failed to get access token (non-200 response)",
+        status: sessionRes.status,
+        statusText: sessionRes.statusText,
+        raw: rawText
+      }, { status: 400 });
+    } else {
+      try {
+        sessionData = await sessionRes.json();
+      } catch (err) {
+        const rawText = await sessionRes.text();
+        return NextResponse.json({
+          error: "Failed to parse access token response as JSON",
+          status: sessionRes.status,
+          statusText: sessionRes.statusText,
+          raw: rawText
+        }, { status: 400 });
+      }
+    }
     if (!sessionData.access_token) {
-      return NextResponse.json({ error: sessionData.message || "Failed to get access token" }, { status: 400 });
+      return NextResponse.json({ 
+        error: sessionData.message || "Failed to get access token", 
+        kite_response: sessionData,
+        status: sessionRes.status,
+        statusText: sessionRes.statusText
+      }, { status: 400 });
     }
 
     // Step 2: Fetch holdings
@@ -33,14 +59,45 @@ export async function POST(req: NextRequest) {
         Authorization: `token ${KITE_API_KEY}:${sessionData.access_token}`,
       },
     });
-    const holdingsData = await holdingsRes.json();
+    let holdingsData;
+    if (!holdingsRes.ok) {
+      const rawText = await holdingsRes.text();
+      return NextResponse.json({
+        error: "Failed to fetch holdings (non-200 response)",
+        status: holdingsRes.status,
+        statusText: holdingsRes.statusText,
+        raw: rawText
+      }, { status: 400 });
+    } else {
+      try {
+        holdingsData = await holdingsRes.json();
+      } catch (err) {
+        const rawText = await holdingsRes.text();
+        return NextResponse.json({
+          error: "Failed to parse holdings response as JSON",
+          status: holdingsRes.status,
+          statusText: holdingsRes.statusText,
+          raw: rawText
+        }, { status: 400 });
+      }
+    }
     if (!holdingsData.data) {
-      return NextResponse.json({ error: holdingsData.message || "Failed to fetch holdings" }, { status: 400 });
+      return NextResponse.json({ 
+        error: holdingsData.message || "Failed to fetch holdings", 
+        kite_response: holdingsData,
+        status: holdingsRes.status,
+        statusText: holdingsRes.statusText
+      }, { status: 400 });
     }
 
     return NextResponse.json({ holdings: holdingsData.data });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message || "Unknown error" }, { status: 500 });
+    // Enhanced error logging
+    return NextResponse.json({ 
+      error: e.message || "Unknown error", 
+      stack: e.stack || null,
+      raw: e
+    }, { status: 500 });
   }
 }
 

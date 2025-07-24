@@ -11,6 +11,7 @@ import { useFinancialData } from "@/context/financial-data-context"
 import { useUser } from "@/context/user-context"
 import { useState, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useStyle } from "@/components/style-provider"
 
 interface BreadcrumbItem {
   label: string
@@ -22,6 +23,7 @@ export default function TopNav() {
   const { currency, setCurrency, clearUserData } = useFinancialData()
   const { user, logout } = useUser()
   const [profilePicture, setProfilePicture] = useState<string | null>(null)
+  const { style } = useStyle()
 
   useEffect(() => {
     if (user) {
@@ -61,28 +63,15 @@ export default function TopNav() {
   const breadcrumbs = generateBreadcrumbs()
 
   return (
-    <nav className="px-3 sm:px-6 flex items-center justify-between bg-white dark:bg-[#0F0F12] border-b border-gray-200 dark:border-[#1F1F23] h-full">
-      <div className="font-medium text-sm hidden sm:flex items-center space-x-1 truncate max-w-[300px]">
-        {breadcrumbs.map((item, index) => (
-          <div key={item.label} className="flex items-center">
-            {index > 0 && <ChevronRight className="h-4 w-4 text-gray-500 dark:text-gray-400 mx-1" />}
-            {item.href && index < breadcrumbs.length - 1 ? (
-              <Link
-                href={item.href}
-                className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-              >
-                {item.label}
-              </Link>
-            ) : (
-              <span className="text-gray-900 dark:text-gray-100">{item.label}</span>
-            )}
-          </div>
-        ))}
-      </div>
+    <nav className={
+      style === "glass"
+        ? "px-3 sm:px-6 flex items-center justify-between bg-gradient-to-br from-[#1a2a2f]/80 via-[#183c3b]/80 to-[#1a2a2f]/80 shadow-[0_8px_32px_0_rgba(0,255,200,0.18)] backdrop-blur-2xl border-0 h-full"
+        : "px-3 sm:px-6 flex items-center justify-between bg-white dark:bg-[#0F0F12] border-b border-gray-200 dark:border-[#1F1F23] h-full"
+    }>
 
       <div className="flex items-center gap-2 sm:gap-4 ml-auto sm:ml-0">
         <Select value={currency} onValueChange={setCurrency}>
-          <SelectTrigger className="w-[120px]">
+          <SelectTrigger className="w-[120px] rounded-full">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
@@ -103,7 +92,7 @@ export default function TopNav() {
               alt="User avatar"
               width={32}
               height={32}
-              className="rounded-full ring-2 ring-gray-200 dark:ring-[#2B2B30] sm:w-8 sm:h-8 cursor-pointer object-cover"
+              className="rounded-full ring-2 ring-gray-200 dark:ring-[#2B2B30] sm:w-8 sm:h-8 cursor-pointer object-cover border border-cyan-200/60"
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent

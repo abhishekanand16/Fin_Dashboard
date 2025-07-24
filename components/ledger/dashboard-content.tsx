@@ -2,23 +2,37 @@ import { Calendar, CreditCard, Wallet } from "lucide-react"
 import List01 from "./list-01"
 import List02 from "./list-02"
 import List03 from "./list-03"
+import { useStyle } from "@/components/style-provider"
 
 export default function DashboardContent() {
+  const { style } = useStyle()
+  const isGlass = style === "glass"
+
+  // Glassmorphism classes
+  const glassCard =
+    "bg-white/60 dark:bg-[#1F1F23]/60 border-cyan-300/60 shadow-xl backdrop-blur-2xl rounded-2xl p-6 flex flex-col border"
+  const glassTitle =
+    "text-lg font-bold mb-4 text-left flex items-center gap-2 text-blue-900 dark:text-blue-100 drop-shadow"
+  const normalCard =
+    "bg-white dark:bg-black/90 rounded-xl p-6 flex flex-col border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm"
+  const normalTitle =
+    "text-lg font-bold text-gray-900 dark:text-white mb-4 text-left flex items-center gap-2 "
+
   return (
-    <div className="p-6 space-y-4">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-black/90 rounded-xl p-6 flex flex-col border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 text-left flex items-center gap-2 ">
-            <Wallet className="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-50" />
+    <div className={isGlass ? "p-8 space-y-6 bg-gradient-to-br from-blue-300/60 via-cyan-200/60 to-blue-100/80 min-h-screen" : "p-6 space-y-4"}>
+      <div className={isGlass ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : "grid grid-cols-1 lg:grid-cols-2 gap-6"}>
+        <div className={isGlass ? glassCard : normalCard}>
+          <h2 className={isGlass ? glassTitle : normalTitle}>
+            <Wallet className={isGlass ? "w-4 h-4 text-cyan-300" : "w-3.5 h-3.5 text-zinc-900 dark:text-zinc-50"} />
             Accounts
           </h2>
           <div className="flex-1">
             <List01 className="h-full" />
           </div>
         </div>
-        <div className="bg-white dark:bg-black/90 rounded-xl p-6 flex flex-col border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 text-left flex items-center gap-2">
-            <CreditCard className="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-50" />
+        <div className={isGlass ? glassCard : normalCard}>
+          <h2 className={isGlass ? glassTitle : normalTitle}>
+            <CreditCard className={isGlass ? "w-4 h-4 text-cyan-300" : "w-3.5 h-3.5 text-zinc-900 dark:text-zinc-50"} />
             Recent Transactions
           </h2>
           <div className="flex-1">
@@ -26,10 +40,9 @@ export default function DashboardContent() {
           </div>
         </div>
       </div>
-
-      <div className="bg-white dark:bg-black/90 rounded-xl p-6 flex flex-col items-start justify-start border border-gray-200 dark:border-[#1F1F23] backdrop-blur-sm">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 text-left flex items-center gap-2">
-          <Calendar className="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-50" />
+      <div className={isGlass ? glassCard : normalCard}>
+        <h2 className={isGlass ? glassTitle : normalTitle}>
+          <Calendar className={isGlass ? "w-4 h-4 text-cyan-300" : "w-3.5 h-3.5 text-zinc-900 dark:text-zinc-50"} />
           Goals
         </h2>
         <List03 />

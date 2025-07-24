@@ -30,9 +30,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
             className="pointer-events-none absolute inset-0 -z-10"
             style={{
               background: (resolvedTheme || theme) === "dark"
-                ? "radial-gradient(circle at 60% 20%, rgba(0, 255, 255, 0.32) 0, rgba(0, 255, 255, 0.18) 40%, transparent 80%)"
-                : "radial-gradient(circle at 60% 20%, rgba(0, 180, 255, 0.28) 0, rgba(0, 180, 255, 0.16) 40%, rgba(0, 180, 255, 0.08) 80%)",
-              filter: (resolvedTheme || theme) === "dark" ? "blur(80px)" : "blur(100px)",
+                ? "radial-gradient(circle at 55% 10%, rgba(0, 255, 255, 0.32) 0, rgba(0, 255, 255, 0.18) 40%, transparent 80%)"
+                : "radial-gradient(circle at 55% 10%, rgba(0, 212, 255, 0.45) 0, rgba(0, 128, 255, 0.25) 40%, rgba(0, 255, 200, 0.18) 70%, rgba(0, 255, 255, 0.12) 95%, transparent 100%)",
+              filter: (resolvedTheme || theme) === "dark" ? "blur(100px)" : "blur(220px)",
             }}
           />
         )}

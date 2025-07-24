@@ -1,3 +1,5 @@
+export const dynamic = "force-static";
+
 export default function PermissionsPage() {
   return (
     <div className="p-6">

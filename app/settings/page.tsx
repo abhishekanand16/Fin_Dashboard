@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -55,20 +55,20 @@ export default function SettingsPage() {
     { code: "ZAR", symbol: "R", name: "South African Rand" },
   ]
 
-  const handleProfileUpdate = () => {
+  const handleProfileUpdate = useCallback(() => {
     if (username.trim()) {
       updateUsername(username.trim())
     }
-  }
+  }, [username, updateUsername])
 
-  const handleFinancialUpdate = () => {
+  const handleFinancialUpdate = useCallback(() => {
     const salary = parseFloat(tempSalaryAmount) || 0
     const expense = parseFloat(tempExpenseAmount) || 0
     setSalaryAmount(salary)
     setMonthlyExpenseAmount(expense)
-  }
+  }, [tempSalaryAmount, tempExpenseAmount, setSalaryAmount, setMonthlyExpenseAmount])
 
-  const handleProfilePictureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePictureUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       const reader = new FileReader()
@@ -78,7 +78,7 @@ export default function SettingsPage() {
       }
       reader.readAsDataURL(file)
     }
-  }
+  }, [updateProfilePicture])
 
   return (
     <div className="p-6 max-w-4xl mx-auto">

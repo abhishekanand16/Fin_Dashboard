@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const KITE_API_KEY = process.env.KITE_API_KEY;
-const KITE_API_SECRET = process.env.KITE_API_SECRET;
-
-if (!KITE_API_KEY || !KITE_API_SECRET) {
-  throw new Error("KITE_API_KEY and KITE_API_SECRET must be set in your environment variables (.env.local)");
-}
-
 export async function POST(req: NextRequest) {
+  const KITE_API_KEY = process.env.KITE_API_KEY;
+  const KITE_API_SECRET = process.env.KITE_API_SECRET;
+  if (!KITE_API_KEY || !KITE_API_SECRET) {
+    throw new Error("KITE_API_KEY and KITE_API_SECRET must be set in your environment variables (.env.local)");
+  }
   try {
     const { request_token } = await req.json();
     if (!request_token) {

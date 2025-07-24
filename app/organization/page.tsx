@@ -2,10 +2,13 @@
 
 import List03 from "@/components/ledger/list-03"
 import { Calendar } from "lucide-react"
+import { useStyle } from "@/components/style-provider"
 
 export default function GoalsPage() {
+  const { style } = useStyle();
+  const isGlass = style === "glass";
   return (
-    <div className="p-6">
+    <div className={isGlass ? "p-6 max-w-4xl mx-auto bg-white/60 dark:bg-[#1F1F23]/60 border-cyan-300/60 shadow-xl backdrop-blur-2xl rounded-2xl" : "p-6 max-w-4xl mx-auto"}>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Financial Goals</h1>
         <p className="text-gray-600 dark:text-gray-400">Track your financial goals and monitor your progress towards achieving them.</p>

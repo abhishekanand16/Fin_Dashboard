@@ -3,10 +3,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Target, Plus } from "lucide-react"
 import List03 from "@/components/ledger/list-03"
+import { useStyle } from "@/components/style-provider"
 
 export default function GoalsPage() {
+  const { style } = useStyle();
+  const isGlass = style === "glass";
   return (
-    <div className="container mx-auto p-6">
+    <div className={isGlass ? "p-6 max-w-4xl mx-auto bg-white/60 dark:bg-[#1F1F23]/60 border-cyan-300/60 shadow-xl backdrop-blur-2xl rounded-2xl" : "p-6 max-w-4xl mx-auto"}>
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-4">
           <Target className="w-8 h-8 text-purple-600 dark:text-purple-400" />

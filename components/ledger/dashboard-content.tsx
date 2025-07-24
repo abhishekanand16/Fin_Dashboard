@@ -19,7 +19,7 @@ export default function DashboardContent() {
     "text-lg font-bold text-gray-900 dark:text-white mb-4 text-left flex items-center gap-2 "
 
   return (
-    <div className={isGlass ? "p-8 space-y-6 bg-gradient-to-br from-blue-300/60 via-cyan-200/60 to-blue-100/80 min-h-screen" : "p-6 space-y-4"}>
+    <div className={isGlass ? "p-8 space-y-6 min-h-screen bg-transparent" : "p-6 space-y-4"}>
       <div className={isGlass ? "grid grid-cols-1 lg:grid-cols-2 gap-8" : "grid grid-cols-1 lg:grid-cols-2 gap-6"}>
         <div className={isGlass ? glassCard : normalCard}>
           <h2 className={isGlass ? glassTitle : normalTitle}>

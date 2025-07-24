@@ -21,7 +21,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className={`relative flex h-screen ${(resolvedTheme || theme) === "dark" ? "dark" : ""}`}>
+    <div className={`relative flex h-screen ${(resolvedTheme || theme) === "dark" ? "dark" : ""} ${style === "glass" ? "bg-gradient-to-br from-blue-300/60 via-cyan-200/60 to-blue-100/80" : ""}` }>
       <Sidebar />
       <div className="w-full flex flex-1 flex-col relative z-10 overflow-hidden">
         {style !== "glass" && (
@@ -37,7 +37,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           />
         )}
         <header className={style === "glass"
-          ? "h-16 border-b border-cyan-200/40 bg-white/30 dark:bg-[#0F0F12]/30 backdrop-blur-xl shadow-lg z-20 relative"
+          ? "h-16 bg-transparent border-none shadow-none z-20 relative"
           : "h-16 border-b border-gray-200 dark:border-[#1F1F23] bg-white/60 dark:bg-[#0F0F12]/60 backdrop-blur-md shadow-sm"
         }>
           <TopNav />

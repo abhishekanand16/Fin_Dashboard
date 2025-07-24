@@ -63,14 +63,22 @@ export default function TopNav() {
   const breadcrumbs = generateBreadcrumbs()
 
   return (
-    <nav className="px-3 sm:px-6 flex items-center justify-between bg-white dark:bg-[#0F0F12] border-b border-gray-200 dark:border-[#1F1F23] h-full">
+    <nav className={
+      style === "glass"
+        ? "px-3 sm:px-6 flex items-center justify-between bg-transparent border-none shadow-none h-full"
+        : "px-3 sm:px-6 flex items-center justify-between bg-white dark:bg-[#0F0F12] border-b border-gray-200 dark:border-[#1F1F23] h-full"
+    }>
       <div className="font-medium text-sm flex items-center space-x-1 truncate max-w-[300px]">
         Dashboard
       </div>
 
       <div className="flex items-center gap-2 sm:gap-4 ml-auto sm:ml-0">
         <Select value={currency} onValueChange={setCurrency}>
-          <SelectTrigger className="w-[120px] rounded-full">
+          <SelectTrigger className={
+            style === "glass"
+              ? "w-[120px] rounded-full bg-white/30 dark:bg-[#1F1F23]/30 backdrop-blur border border-cyan-200/40 shadow-sm"
+              : "w-[120px] rounded-full"
+          }>
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
@@ -85,13 +93,21 @@ export default function TopNav() {
         <ThemeToggle />
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="focus:outline-none">
+          <DropdownMenuTrigger className={
+            style === "glass"
+              ? "focus:outline-none rounded-full bg-white/30 dark:bg-[#1F1F23]/30 backdrop-blur border border-cyan-200/40 shadow-sm"
+              : "focus:outline-none"
+          }>
             <img
               src={profilePicture || "https://ferf1mheo22r9ira.public.blob.vercel-storage.com/avatar-01-n0x8HFv8EUetf9z6ht0wScJKoTHqf8.png"}
               alt="User avatar"
               width={32}
               height={32}
-              className="rounded-full ring-2 ring-gray-200 dark:ring-[#2B2B30] sm:w-8 sm:h-8 cursor-pointer object-cover border border-cyan-200/60"
+              className={
+                style === "glass"
+                  ? "rounded-full ring-2 ring-gray-200 dark:ring-[#2B2B30] sm:w-8 sm:h-8 cursor-pointer object-cover border border-cyan-200/60 bg-white/30 dark:bg-[#1F1F23]/30 backdrop-blur"
+                  : "rounded-full ring-2 ring-gray-200 dark:ring-[#2B2B30] sm:w-8 sm:h-8 cursor-pointer object-cover border border-cyan-200/60"
+              }
             />
           </DropdownMenuTrigger>
           <DropdownMenuContent

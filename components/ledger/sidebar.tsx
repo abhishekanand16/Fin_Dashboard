@@ -23,10 +23,12 @@ import {
 
 import Link from "next/link"
 import { useState } from "react"
+import { useStyle } from "@/components/style-provider"
 
 export default function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { style } = useStyle()
 
   function handleNavigation() {
     setIsMobileMenuOpen(false)
@@ -46,15 +48,22 @@ export default function Sidebar() {
       <Link
         href={href}
         onClick={handleNavigation}
-        className={`flex items-center px-3 py-2 text-sm rounded-md transition-colors
+        className={`flex items-center px-4 py-2 text-sm rounded-lg transition-colors gap-3
+          ${
+            style === "glass"
+              ? "bg-white/30 dark:bg-[#1F1F23]/30 backdrop-blur border border-cyan-200/40 shadow-sm"
+              : ""
+          }
           ${
             isActive
-              ? "text-gray-900 dark:text-white bg-gray-100 dark:bg-[#1F1F23]"
-              : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1F1F23]"
+              ? "text-gray-900 dark:text-white bg-cyan-100/60 dark:bg-cyan-900/30 shadow"
+              : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-cyan-50 dark:hover:bg-cyan-900/20"
           }
         `}
       >
-        <Icon className="h-4 w-4 mr-3 flex-shrink-0" />
+        <span className="rounded-full bg-cyan-100/60 dark:bg-cyan-900/30 p-2 flex items-center justify-center">
+          <Icon className="h-5 w-5" />
+        </span>
         {children}
       </Link>
     )
@@ -70,11 +79,13 @@ export default function Sidebar() {
         <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
       </button>
       <nav
-        className={`
-                fixed inset-y-0 left-0 z-[70] w-64 bg-white dark:bg-[#0F0F12] transform transition-transform duration-200 ease-in-out
-                lg:translate-x-0 lg:static lg:w-64 border-r border-gray-200 dark:border-[#1F1F23]
-                ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
-            `}
+        className={`fixed inset-y-0 left-0 z-[70] w-64 transform transition-transform duration-200 ease-in-out
+          lg:translate-x-0 lg:static lg:w-64
+          ${style === "glass"
+            ? "bg-transparent border-r-0"
+            : "bg-white dark:bg-[#0F0F12] border-r border-gray-200 dark:border-[#1F1F23]"}
+          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
       >
         <div className="h-full flex flex-col">
           <Link

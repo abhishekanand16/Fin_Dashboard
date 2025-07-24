@@ -21,7 +21,7 @@ import {
   Calendar,
   Palette
 } from "lucide-react"
-import { useStyle } from "@/components/style-provider"
+
 import React, { memo } from "react"
 
 const UserManagementFAQ = memo(function UserManagementFAQ() {

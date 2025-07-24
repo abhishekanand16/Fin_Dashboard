@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 
 export default function StocksPage() {
   const [holdings, setHoldings] = useState<any[] | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     const data = localStorage.getItem("kite_holdings");
@@ -12,6 +13,7 @@ export default function StocksPage() {
   }, []);
 
   if (holdings) {
+    const displayHoldings = showAll ? holdings : holdings.slice(0, 20);
     return (
       <div className="p-8">
         <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
@@ -28,7 +30,7 @@ export default function StocksPage() {
             </tr>
           </thead>
           <tbody>
-            {holdings.map((h: any, i: number) => (
+            {displayHoldings.map((h: any, i: number) => (
               <tr key={i} className="border-t">
                 <td className="px-4 py-2">{h.tradingsymbol}</td>
                 <td className="px-4 py-2">{h.quantity}</td>
@@ -38,6 +40,14 @@ export default function StocksPage() {
             ))}
           </tbody>
         </table>
+        {holdings.length > 20 && !showAll && (
+          <button
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+            onClick={() => setShowAll(true)}
+          >
+            Show More
+          </button>
+        )}
       </div>
     );
   }

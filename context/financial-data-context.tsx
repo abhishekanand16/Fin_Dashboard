@@ -1,7 +1,6 @@
 "use client"
 
-import { createContext, useState, useContext, type ReactNode, useCallback, useEffect } from "react"
-import { PiggyBank, TrendingUp, CreditCard } from "lucide-react"
+import { createContext, useState, useContext, type ReactNode, useCallback, useEffect, useRef } from "react"
 import { useUser } from "@/context/user-context"
 
 // Define types for AccountItem and ListItem (Event)
@@ -13,14 +12,13 @@ interface AccountItem {
   type: "savings" | "checking" | "investment" | "debt" | "salary"
 }
 
-interface ListItem {
-  // Renamed from ListItem to EventItem for clarity in context
+interface EventItem {
   id: string
   title: string
   subtitle: string
-  icon: string // Store as string instead of LucideIcon
+  icon: string
   iconStyle: string
-  targetDate: string // Change from date to targetDate for completion
+  targetDate: string
   time?: string
   amount?: string
   status: "pending" | "in-progress" | "completed"
@@ -81,7 +79,7 @@ const INITIAL_ACCOUNTS: AccountItem[] = [
 ]
 
 // Initial Data for Events
-const INITIAL_EVENTS: ListItem[] = [
+const INITIAL_EVENTS: EventItem[] = [
   {
     id: "1",
     title: "Emergency Fund",
@@ -128,16 +126,16 @@ const EMPTY_ACCOUNTS: AccountItem[] = [
 ]
 
 // Initial Data for Events (empty for new users)
-const EMPTY_EVENTS: ListItem[] = []
+const EMPTY_EVENTS: EventItem[] = []
 
 interface FinancialDataContextType {
   accounts: AccountItem[]
   addAccount: (account: AccountItem) => void
   updateAccount: (account: AccountItem) => void
   deleteAccount: (accountId: string) => void
-  events: ListItem[]
-  addEvent: (event: ListItem) => void
-  updateEvent: (event: ListItem) => void
+  events: EventItem[]
+  addEvent: (event: EventItem) => void
+  updateEvent: (event: EventItem) => void
   deleteEvent: (eventId: string) => void
   currency: string
   setCurrency: (currency: string) => void
@@ -156,13 +154,91 @@ const FinancialDataContext = createContext<FinancialDataContextType | undefined>
 
 export function FinancialDataProvider({ children }: { children: ReactNode }) {
   const { user } = useUser()
-  const [accounts, setAccounts] = useState<AccountItem[]>(EMPTY_ACCOUNTS)
-  const [events, setEvents] = useState<ListItem[]>(EMPTY_EVENTS)
-  const [currency, setCurrency] = useState<string>("INR")
-  const [revenueData, setRevenueData] = useState<RevenueItem[]>(EMPTY_REVENUE)
-  const [expensesData, setExpensesData] = useState<ExpensesItem[]>(EMPTY_EXPENSES)
-  const [salaryAmount, setSalaryAmount] = useState<number>(0)
-  const [monthlyExpenseAmount, setMonthlyExpenseAmount] = useState<number>(0)
+  // Lazy initialization for accounts and events
+  const [accounts, setAccounts] = useState<AccountItem[]>(() => {
+    if (typeof window !== "undefined" && user) {
+      const data = localStorage.getItem(`dashboard_data_${user}`)
+      if (data) {
+        try {
+          const parsed = JSON.parse(data)
+          return parsed.accounts || EMPTY_ACCOUNTS
+        } catch {}
+      }
+    }
+    return EMPTY_ACCOUNTS
+  })
+  const [events, setEvents] = useState<EventItem[]>(() => {
+    if (typeof window !== "undefined" && user) {
+      const data = localStorage.getItem(`dashboard_data_${user}`)
+      if (data) {
+        try {
+          const parsed = JSON.parse(data)
+          return parsed.events || EMPTY_EVENTS
+        } catch {}
+      }
+    }
+    return EMPTY_EVENTS
+  })
+  const [currency, setCurrency] = useState<string>(() => {
+    if (typeof window !== "undefined" && user) {
+      const data = localStorage.getItem(`dashboard_data_${user}`)
+      if (data) {
+        try {
+          const parsed = JSON.parse(data)
+          return parsed.currency || "INR"
+        } catch {}
+      }
+    }
+    return "INR"
+  })
+  const [revenueData, setRevenueData] = useState<RevenueItem[]>(() => {
+    if (typeof window !== "undefined" && user) {
+      const data = localStorage.getItem(`dashboard_data_${user}`)
+      if (data) {
+        try {
+          const parsed = JSON.parse(data)
+          return parsed.revenueData || EMPTY_REVENUE
+        } catch {}
+      }
+    }
+    return EMPTY_REVENUE
+  })
+  const [expensesData, setExpensesData] = useState<ExpensesItem[]>(() => {
+    if (typeof window !== "undefined" && user) {
+      const data = localStorage.getItem(`dashboard_data_${user}`)
+      if (data) {
+        try {
+          const parsed = JSON.parse(data)
+          return parsed.expensesData || EMPTY_EXPENSES
+        } catch {}
+      }
+    }
+    return EMPTY_EXPENSES
+  })
+  const [salaryAmount, setSalaryAmount] = useState<number>(() => {
+    if (typeof window !== "undefined" && user) {
+      const data = localStorage.getItem(`dashboard_data_${user}`)
+      if (data) {
+        try {
+          const parsed = JSON.parse(data)
+          return parsed.salaryAmount || 0
+        } catch {}
+      }
+    }
+    return 0
+  })
+  const [monthlyExpenseAmount, setMonthlyExpenseAmount] = useState<number>(() => {
+    if (typeof window !== "undefined" && user) {
+      const data = localStorage.getItem(`dashboard_data_${user}`)
+      if (data) {
+        try {
+          const parsed = JSON.parse(data)
+          return parsed.monthlyExpenseAmount || 0
+        } catch {}
+      }
+    }
+    return 0
+  })
 
   // Load data from localStorage when user changes
   useEffect(() => {
@@ -198,11 +274,18 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
     }
   }, [user])
 
-  // Save data to localStorage when any data changes
+  // Debounce localStorage writes
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
   useEffect(() => {
     if (!user) return
-    const data = { accounts, events, currency, revenueData, expensesData, salaryAmount, monthlyExpenseAmount }
-    localStorage.setItem(`dashboard_data_${user}` , JSON.stringify(data))
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+    debounceTimeout.current = setTimeout(() => {
+      const data = { accounts, events, currency, revenueData, expensesData, salaryAmount, monthlyExpenseAmount }
+      localStorage.setItem(`dashboard_data_${user}` , JSON.stringify(data))
+    }, 100)
+    return () => {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+    }
   }, [accounts, events, currency, revenueData, expensesData, salaryAmount, monthlyExpenseAmount, user])
 
   const addAccount = useCallback((newAccount: AccountItem) => {
@@ -217,11 +300,11 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
     setAccounts((prev) => prev.filter((acc) => acc.id !== accountId))
   }, [])
 
-  const addEvent = useCallback((newEvent: ListItem) => {
+  const addEvent = useCallback((newEvent: EventItem) => {
     setEvents((prev) => [...prev, newEvent])
   }, [])
 
-  const updateEvent = useCallback((updatedEvent: ListItem) => {
+  const updateEvent = useCallback((updatedEvent: EventItem) => {
     setEvents((prev) => prev.map((evt) => (evt.id === updatedEvent.id ? updatedEvent : evt)))
   }, [])
 
@@ -229,14 +312,15 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
     setEvents((prev) => prev.filter((evt) => evt.id !== eventId))
   }, [])
 
+  // Batch state resets in clearUserData
   const clearUserData = useCallback(() => {
-    setAccounts(EMPTY_ACCOUNTS)
-    setEvents(EMPTY_EVENTS)
-    setCurrency("INR")
-    setRevenueData(EMPTY_REVENUE)
-    setExpensesData(EMPTY_EXPENSES)
-    setSalaryAmount(0)
-    setMonthlyExpenseAmount(0)
+    setAccounts(() => EMPTY_ACCOUNTS)
+    setEvents(() => EMPTY_EVENTS)
+    setCurrency(() => "INR")
+    setRevenueData(() => EMPTY_REVENUE)
+    setExpensesData(() => EMPTY_EXPENSES)
+    setSalaryAmount(() => 0)
+    setMonthlyExpenseAmount(() => 0)
   }, [])
 
   return (

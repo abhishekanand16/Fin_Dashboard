@@ -106,7 +106,7 @@ export default function Sidebar() {
             </div>
           </Link>
 
-          <div className="flex-1 overflow-y-auto py-4 px-4">
+          <div className="flex-1 overflow-y-auto py-4 px-4 scrollbar-hide">
             <div className="space-y-6">
               <div>
                 <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">

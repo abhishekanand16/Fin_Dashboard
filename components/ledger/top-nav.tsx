@@ -65,9 +65,12 @@ export default function TopNav() {
   return (
     <nav className={
       style === "glass"
-        ? "px-3 sm:px-6 flex items-center justify-between bg-gradient-to-br from-[#1a2a2f]/80 via-[#183c3b]/80 to-[#1a2a2f]/80 shadow-[0_8px_32px_0_rgba(0,255,200,0.18)] backdrop-blur-2xl border-0 h-full"
+        ? "px-3 sm:px-6 flex items-center justify-between bg-white/30 dark:bg-[#1F1F23]/30 backdrop-blur-xl shadow-lg border-0 h-full"
         : "px-3 sm:px-6 flex items-center justify-between bg-white dark:bg-[#0F0F12] border-b border-gray-200 dark:border-[#1F1F23] h-full"
     }>
+      <div className="font-medium text-sm flex items-center space-x-1 truncate max-w-[300px]">
+        Dashboard
+      </div>
 
       <div className="flex items-center gap-2 sm:gap-4 ml-auto sm:ml-0">
         <Select value={currency} onValueChange={setCurrency}>

@@ -51,7 +51,6 @@ export default function StocksPage() {
       </div>
     );
   }
-
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4">Stocks</h1>

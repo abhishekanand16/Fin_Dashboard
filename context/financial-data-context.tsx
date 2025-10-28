@@ -29,8 +29,37 @@ interface EventItem {
 interface RevenueItem { month: string; revenue: number }
 interface ExpensesItem { month: string; expenses: number }
 
+// Types for transactions
+export interface Transaction {
+  id: string
+  date: string
+  description: string
+  amount: number
+  type: "income" | "expense"
+  category: string
+  accountId?: string
+  paymentMethod?: string
+  notes?: string
+}
+
+// Types for holdings
+export interface Holding {
+  id: string
+  tradingsymbol: string
+  exchange: string
+  quantity: number
+  average_price: number
+  last_price: number
+  pnl: number
+  pnl_percentage: number
+  broker: "kite" | "groww" | "other"
+  broker_account?: string
+}
+
 const EMPTY_REVENUE: RevenueItem[] = []
 const EMPTY_EXPENSES: ExpensesItem[] = []
+const EMPTY_TRANSACTIONS: Transaction[] = []
+const EMPTY_HOLDINGS: Holding[] = []
 
 // Initial Data for Accounts
 const INITIAL_ACCOUNTS: AccountItem[] = [
@@ -147,6 +176,16 @@ interface FinancialDataContextType {
   setSalaryAmount: (amount: number) => void
   monthlyExpenseAmount: number
   setMonthlyExpenseAmount: (amount: number) => void
+  transactions: Transaction[]
+  addTransaction: (transaction: Transaction) => void
+  addTransactions: (transactions: Transaction[]) => void
+  updateTransaction: (transaction: Transaction) => void
+  deleteTransaction: (transactionId: string) => void
+  holdings: Holding[]
+  addHolding: (holding: Holding) => void
+  addHoldings: (holdings: Holding[]) => void
+  updateHolding: (holding: Holding) => void
+  deleteHolding: (holdingId: string) => void
   clearUserData: () => void
 }
 
@@ -239,6 +278,30 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
     }
     return 0
   })
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    if (typeof window !== "undefined" && user) {
+      const data = localStorage.getItem(`dashboard_data_${user}`)
+      if (data) {
+        try {
+          const parsed = JSON.parse(data)
+          return parsed.transactions || EMPTY_TRANSACTIONS
+        } catch {}
+      }
+    }
+    return EMPTY_TRANSACTIONS
+  })
+  const [holdings, setHoldings] = useState<Holding[]>(() => {
+    if (typeof window !== "undefined" && user) {
+      const data = localStorage.getItem(`dashboard_data_${user}`)
+      if (data) {
+        try {
+          const parsed = JSON.parse(data)
+          return parsed.holdings || EMPTY_HOLDINGS
+        } catch {}
+      }
+    }
+    return EMPTY_HOLDINGS
+  })
 
   // Load data from localStorage when user changes
   useEffect(() => {
@@ -254,6 +317,8 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
         setExpensesData(parsed.expensesData || EMPTY_EXPENSES)
         setSalaryAmount(parsed.salaryAmount || 0)
         setMonthlyExpenseAmount(parsed.monthlyExpenseAmount || 0)
+        setTransactions(parsed.transactions || EMPTY_TRANSACTIONS)
+        setHoldings(parsed.holdings || EMPTY_HOLDINGS)
       } catch {
         setAccounts(EMPTY_ACCOUNTS)
         setEvents(EMPTY_EVENTS)
@@ -262,6 +327,8 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
         setExpensesData(EMPTY_EXPENSES)
         setSalaryAmount(0)
         setMonthlyExpenseAmount(0)
+        setTransactions(EMPTY_TRANSACTIONS)
+        setHoldings(EMPTY_HOLDINGS)
       }
     } else {
       setAccounts(EMPTY_ACCOUNTS)
@@ -271,6 +338,8 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
       setExpensesData(EMPTY_EXPENSES)
       setSalaryAmount(0)
       setMonthlyExpenseAmount(0)
+      setTransactions(EMPTY_TRANSACTIONS)
+      setHoldings(EMPTY_HOLDINGS)
     }
   }, [user])
 
@@ -280,13 +349,13 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
     if (!user) return
     if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
     debounceTimeout.current = setTimeout(() => {
-      const data = { accounts, events, currency, revenueData, expensesData, salaryAmount, monthlyExpenseAmount }
+      const data = { accounts, events, currency, revenueData, expensesData, salaryAmount, monthlyExpenseAmount, transactions, holdings }
       localStorage.setItem(`dashboard_data_${user}` , JSON.stringify(data))
     }, 100)
     return () => {
       if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
     }
-  }, [accounts, events, currency, revenueData, expensesData, salaryAmount, monthlyExpenseAmount, user])
+  }, [accounts, events, currency, revenueData, expensesData, salaryAmount, monthlyExpenseAmount, transactions, holdings, user])
 
   const addAccount = useCallback((newAccount: AccountItem) => {
     setAccounts((prev) => [...prev, newAccount])
@@ -312,6 +381,38 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
     setEvents((prev) => prev.filter((evt) => evt.id !== eventId))
   }, [])
 
+  const addTransaction = useCallback((newTransaction: Transaction) => {
+    setTransactions((prev) => [...prev, newTransaction])
+  }, [])
+
+  const addTransactions = useCallback((newTransactions: Transaction[]) => {
+    setTransactions((prev) => [...prev, ...newTransactions])
+  }, [])
+
+  const updateTransaction = useCallback((updatedTransaction: Transaction) => {
+    setTransactions((prev) => prev.map((txn) => (txn.id === updatedTransaction.id ? updatedTransaction : txn)))
+  }, [])
+
+  const deleteTransaction = useCallback((transactionId: string) => {
+    setTransactions((prev) => prev.filter((txn) => txn.id !== transactionId))
+  }, [])
+
+  const addHolding = useCallback((newHolding: Holding) => {
+    setHoldings((prev) => [...prev, newHolding])
+  }, [])
+
+  const addHoldings = useCallback((newHoldings: Holding[]) => {
+    setHoldings((prev) => [...prev, ...newHoldings])
+  }, [])
+
+  const updateHolding = useCallback((updatedHolding: Holding) => {
+    setHoldings((prev) => prev.map((h) => (h.id === updatedHolding.id ? updatedHolding : h)))
+  }, [])
+
+  const deleteHolding = useCallback((holdingId: string) => {
+    setHoldings((prev) => prev.filter((h) => h.id !== holdingId))
+  }, [])
+
   // Batch state resets in clearUserData
   const clearUserData = useCallback(() => {
     setAccounts(() => EMPTY_ACCOUNTS)
@@ -321,10 +422,12 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
     setExpensesData(() => EMPTY_EXPENSES)
     setSalaryAmount(() => 0)
     setMonthlyExpenseAmount(() => 0)
+    setTransactions(() => EMPTY_TRANSACTIONS)
+    setHoldings(() => EMPTY_HOLDINGS)
   }, [])
 
   return (
-    <FinancialDataContext.Provider value={{ accounts, addAccount, updateAccount, deleteAccount, events, addEvent, updateEvent, deleteEvent, currency, setCurrency, revenueData, setRevenueData, expensesData, setExpensesData, salaryAmount, setSalaryAmount, monthlyExpenseAmount, setMonthlyExpenseAmount, clearUserData }}>
+    <FinancialDataContext.Provider value={{ accounts, addAccount, updateAccount, deleteAccount, events, addEvent, updateEvent, deleteEvent, currency, setCurrency, revenueData, setRevenueData, expensesData, setExpensesData, salaryAmount, setSalaryAmount, monthlyExpenseAmount, setMonthlyExpenseAmount, transactions, addTransaction, addTransactions, updateTransaction, deleteTransaction, holdings, addHolding, addHoldings, updateHolding, deleteHolding, clearUserData }}>
       {children}
     </FinancialDataContext.Provider>
   )

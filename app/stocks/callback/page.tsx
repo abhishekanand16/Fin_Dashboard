@@ -1,12 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useFinancialData, type Holding } from "@/context/financial-data-context";
 
 export default function KiteCallback() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [rawError, setRawError] = useState<any>(null);
   const router = useRouter();
+  const { addHoldings } = useFinancialData();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -28,8 +30,33 @@ export default function KiteCallback() {
           setError(data.error);
           setRawError(data);
         } else {
-          // Store holdings in localStorage and redirect to /stocks
+          // Convert Kite holdings to our Holding format
+          const formattedHoldings: Holding[] = data.holdings.map((h: any, index: number) => {
+            const invested = h.quantity * h.average_price;
+            const currentValue = h.quantity * h.last_price;
+            const pnl = currentValue - invested;
+            const pnlPercentage = ((pnl / invested) * 100) || 0;
+
+            return {
+              id: `kite-${Date.now()}-${index}`,
+              tradingsymbol: h.tradingsymbol,
+              exchange: h.exchange,
+              quantity: h.quantity,
+              average_price: h.average_price,
+              last_price: h.last_price,
+              pnl,
+              pnl_percentage: pnlPercentage,
+              broker: "kite",
+              broker_account: "Kite Account",
+            };
+          });
+
+          // Add to financial context
+          addHoldings(formattedHoldings);
+
+          // Also store in legacy localStorage for backward compatibility
           localStorage.setItem("kite_holdings", JSON.stringify(data.holdings));
+          
           router.replace("/stocks");
         }
       })
@@ -38,7 +65,7 @@ export default function KiteCallback() {
         setRawError(e);
       })
       .finally(() => setLoading(false));
-  }, [router]);
+  }, [router, addHoldings]);
 
   return (
     <div className="p-8">

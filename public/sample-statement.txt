@@ -1,0 +1,28 @@
+BANK STATEMENT
+Account Number: XXXX1234
+Statement Period: January 2024
+
+Date       Description                           Debit       Credit      Balance
+01/01/2024 Opening Balance                                               50,000.00
+02/01/2024 Salary Credit                                     75,000.00   125,000.00
+03/01/2024 UPI-Zomato                            850.00                  124,150.00
+04/01/2024 Card Payment-Amazon                   2,450.00                121,700.00
+05/01/2024 Bill Payment-Electricity              1,200.00                120,500.00
+07/01/2024 UPI-Swiggy                            650.00                  119,850.00
+08/01/2024 ATM Withdrawal                        5,000.00                114,850.00
+10/01/2024 Card Payment-Netflix                  799.00                  114,051.00
+12/01/2024 UPI-Uber                              450.00                  113,601.00
+13/01/2024 Transfer to Savings                   10,000.00               103,601.00
+15/01/2024 Card Payment-Flipkart                 3,250.00                100,351.00
+16/01/2024 UPI-Medical Store                     890.00                  99,461.00
+18/01/2024 Bill Payment-Internet                 999.00                  98,462.00
+20/01/2024 Restaurant Payment                    2,500.00                95,962.00
+22/01/2024 Petrol-Credit Card                    3,500.00                92,462.00
+25/01/2024 Movie Tickets                         800.00                  91,662.00
+27/01/2024 Grocery Shopping                      4,500.00                87,162.00
+28/01/2024 UPI-Ola Cabs                          320.00                  86,842.00
+30/01/2024 Investment-Mutual Fund                5,000.00                81,842.00
+31/01/2024 Closing Balance                                               81,842.00
+
+End of Statement
+

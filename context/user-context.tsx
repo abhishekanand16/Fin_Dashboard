@@ -9,17 +9,23 @@ interface UserContextType {
   logout: () => void
   updateUsername: (newUsername: string) => void
   updateProfilePicture: (pictureData: string) => void
+  isLoading: boolean
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export function UserProvider({ children }: { children: ReactNode }) {
+  // Always initialize as null to avoid hydration mismatch between server and client
   const [user, setUser] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Try to load user from cookie on mount
+    // Load user from cookie on mount (client-side only)
     const cookieUser = Cookies.get("demo_user")
-    if (cookieUser) setUser(cookieUser)
+    if (cookieUser) {
+      setUser(cookieUser)
+    }
+    setIsLoading(false)
   }, [])
 
   const login = (username: string) => {
@@ -44,7 +50,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <UserContext.Provider value={{ user, login, logout, updateUsername, updateProfilePicture }}>
+    <UserContext.Provider value={{ user, login, logout, updateUsername, updateProfilePicture, isLoading }}>
       {children}
     </UserContext.Provider>
   )

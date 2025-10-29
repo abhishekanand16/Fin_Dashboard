@@ -21,9 +21,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
   // Show loading state until both theme and user are ready
   if (!mounted || isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-zinc-900 dark:to-zinc-800">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-sky-100 to-teal-100 dark:from-zinc-900 dark:to-zinc-800">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-400"></div>
           <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
       </div>
@@ -31,7 +31,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className={`relative flex h-screen ${(resolvedTheme || theme) === "dark" ? "dark" : ""} ${style === "glass" ? "bg-gradient-to-br from-blue-300/60 via-cyan-200/60 to-blue-100/80" : ""}` }>
+    <div className={`relative flex h-screen ${(resolvedTheme || theme) === "dark" ? "dark" : ""} ${style === "glass" ? "bg-gradient-to-br from-sky-300/60 via-teal-200/60 to-cyan-100/80" : ""}` }>
       <Sidebar />
       <div className="w-full flex flex-1 flex-col relative z-10 overflow-hidden">
         {style !== "glass" && (
@@ -40,8 +40,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
             className="pointer-events-none absolute inset-0 -z-10"
             style={{
               background: (resolvedTheme || theme) === "dark"
-                ? "radial-gradient(circle at 55% 10%, rgba(0, 255, 255, 0.32) 0, rgba(0, 255, 255, 0.18) 40%, transparent 80%)"
-                : "radial-gradient(circle at 55% 10%, rgba(0, 212, 255, 0.45) 0, rgba(0, 128, 255, 0.25) 40%, rgba(0, 255, 200, 0.18) 70%, rgba(0, 255, 255, 0.12) 95%, transparent 100%)",
+                ? "radial-gradient(circle at 55% 10%, rgba(100, 220, 240, 0.32) 0, rgba(100, 220, 240, 0.18) 40%, transparent 80%)"
+                : "radial-gradient(circle at 55% 10%, rgba(120, 210, 240, 0.45) 0, rgba(100, 200, 230, 0.25) 40%, rgba(140, 230, 250, 0.18) 70%, rgba(130, 220, 245, 0.12) 95%, transparent 100%)",
               filter: (resolvedTheme || theme) === "dark" ? "blur(100px)" : "blur(220px)",
             }}
           />

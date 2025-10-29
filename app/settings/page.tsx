@@ -10,10 +10,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { useTheme } from "next-themes"
 import { useUser } from "@/context/user-context"
 import { useFinancialData } from "@/context/financial-data-context"
 import { useStyle } from "@/components/style-provider"
+import { useRouter } from "next/navigation"
 import { 
   User, 
   DollarSign, 
@@ -24,21 +36,25 @@ import {
   Settings,
   Moon,
   Sun,
-  Monitor
+  Monitor,
+  LogOut,
+  Trash2
 } from "lucide-react"
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme()
   const { style, setStyle } = useStyle()
   const isGlass = style === "glass";
-  const { user, updateUsername, updateProfilePicture } = useUser()
+  const { user, updateUsername, updateProfilePicture, logout } = useUser()
+  const router = useRouter()
   const { 
     currency, 
     setCurrency, 
     salaryAmount, 
     setSalaryAmount, 
     monthlyExpenseAmount, 
-    setMonthlyExpenseAmount 
+    setMonthlyExpenseAmount,
+    clearUserData
   } = useFinancialData()
 
   const [username, setUsername] = useState(user || "")
@@ -82,6 +98,20 @@ export default function SettingsPage() {
       reader.readAsDataURL(file)
     }
   }, [updateProfilePicture])
+
+  const handleClearData = useCallback(() => {
+    clearUserData()
+    // Reload the page to reflect cleared data
+    window.location.reload()
+  }, [clearUserData])
+
+  const handleLogout = useCallback(() => {
+    // Clear financial data state first
+    clearUserData()
+    // Then logout (which clears localStorage and cookies)
+    logout()
+    router.push("/")
+  }, [clearUserData, logout, router])
 
   return (
     <div className={isGlass ? "p-6 max-w-4xl mx-auto bg-white/40 border border-cyan-200/40 shadow-lg backdrop-blur-2xl rounded-2xl" : "p-6 max-w-4xl mx-auto"}>
@@ -168,6 +198,68 @@ export default function SettingsPage() {
                     Update
                   </Button>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Account Actions */}
+          <Card className="border-red-200 dark:border-red-900">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                <Settings className="w-5 h-5" />
+                Account Actions
+              </CardTitle>
+              <CardDescription>
+                Clear your data or logout from your account.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="flex-1">
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Clear Data
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Clear All Data?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete all your financial data, accounts, events, transactions, and holdings. Your profile information will remain.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleClearData} className="bg-red-600 hover:bg-red-700">
+                        Clear Data
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="flex-1 border-red-300 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Logout from Account?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        You will be logged out and all your data will be cleared. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleLogout} className="bg-red-600 hover:bg-red-700">
+                        Logout
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </CardContent>
           </Card>

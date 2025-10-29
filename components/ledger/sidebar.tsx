@@ -5,15 +5,8 @@ import { usePathname } from "next/navigation"
 
 import {
   BarChart2,
-  Receipt,
   Target,
-  CreditCard,
-  Folder,
   Wallet,
-  Users2,
-  Shield,
-  MessagesSquare,
-  Video,
   Settings,
   HelpCircle,
   Menu,
@@ -122,9 +115,6 @@ export default function Sidebar() {
                   <NavItem href="/organization" icon={Target}>
                     Goals
                   </NavItem>
-                  <NavItem href="/projects" icon={Folder}>
-                    Projects
-                  </NavItem>
                 </div>
               </div>
 
@@ -136,34 +126,8 @@ export default function Sidebar() {
                   <NavItem href="/transactions" icon={Wallet}>
                     Transactions
                   </NavItem>
-                  <NavItem href="/invoices" icon={Receipt}>
-                    Invoices
-                  </NavItem>
-                  <NavItem href="/payments" icon={CreditCard}>
-                    Payments
-                  </NavItem>
                   <NavItem href="/stocks" icon={TrendingUp}>
                     Stocks
-                  </NavItem>
-                </div>
-              </div>
-
-              <div>
-                <div className="px-3 mb-2 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  Team
-                </div>
-                <div className="space-y-1">
-                  <NavItem href="/members" icon={Users2}>
-                    Members
-                  </NavItem>
-                  <NavItem href="/permissions" icon={Shield}>
-                    Permissions
-                  </NavItem>
-                  <NavItem href="/chat" icon={MessagesSquare}>
-                    Chat
-                  </NavItem>
-                  <NavItem href="/meetings" icon={Video}>
-                    Meetings
                   </NavItem>
                 </div>
               </div>

@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 
 import React, { memo } from "react"
+import { useStyle } from "@/components/style-provider"
 
 const UserManagementFAQ = memo(function UserManagementFAQ() {
   return (

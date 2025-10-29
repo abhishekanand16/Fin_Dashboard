@@ -15,7 +15,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts"
-import { DollarSign, TrendingUp, PieChartIcon } from "lucide-react"
+import { DollarSign, TrendingUp, PieChartIcon, ArrowUpCircle, ArrowDownCircle } from "lucide-react"
 import { useFinancialData } from "@/context/financial-data-context" // Import useFinancialData
 
 const revenueData = [
@@ -46,7 +46,7 @@ const accountTypeColors: { [key: string]: string } = {
 }
 
 export default function AnalyticsContent() {
-  const { accounts, currency, revenueData, expensesData, salaryAmount, monthlyExpenseAmount } = useFinancialData() // Get data from context
+  const { accounts, currency, revenueData, expensesData, salaryAmount, monthlyExpenseAmount, transactions, holdings } = useFinancialData() // Get data from context
 
   // Calculate totals from user data
   const totalRevenue = revenueData.reduce((sum, item) => sum + (item.revenue || 0), 0)
@@ -118,9 +118,239 @@ export default function AnalyticsContent() {
   ]
   const currencySymbol = currencyOptions.find((c) => c.code === currency)?.symbol || "₹";
 
+  // Calculate transaction-based analytics
+  const transactionIncome = transactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0)
+  
+  const transactionExpenses = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0)
+
+  // Group transactions by category for pie chart
+  const categoryExpenses = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((acc, transaction) => {
+      const existing = acc.find((item) => item.name === transaction.category)
+      if (existing) {
+        existing.value += transaction.amount
+      } else {
+        acc.push({
+          name: transaction.category,
+          value: transaction.amount,
+          fill: accountTypeColors[transaction.category.toLowerCase().replace(/\s+/g, '')] || "hsl(var(--chart-5))"
+        })
+      }
+      return acc
+    }, [] as { name: string; value: number; fill: string }[])
+
+  // Group transactions by month for trend analysis
+  const monthlyTransactionData = transactions.reduce((acc, transaction) => {
+    const date = new Date(transaction.date)
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+    const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    
+    const existing = acc.find((item) => item.monthKey === monthKey)
+    if (existing) {
+      if (transaction.type === "income") {
+        existing.revenue += transaction.amount
+      } else {
+        existing.expenses += transaction.amount
+      }
+    } else {
+      acc.push({
+        monthKey,
+        month: monthName,
+        revenue: transaction.type === "income" ? transaction.amount : 0,
+        expenses: transaction.type === "expense" ? transaction.amount : 0,
+      })
+    }
+    return acc
+  }, [] as { monthKey: string; month: string; revenue: number; expenses: number }[])
+    .sort((a, b) => a.monthKey.localeCompare(b.monthKey))
+    .slice(-6) // Last 6 months
+
+  // Use transaction data if available, otherwise use manual data
+  const displayRevenueData = monthlyTransactionData.length > 0 ? monthlyTransactionData : revenueData
+  const displayExpensesData = monthlyTransactionData.length > 0 ? monthlyTransactionData : expensesData
+  const displayCategoryData = categoryExpenses.length > 0 ? categoryExpenses : categoryData
+
+  // Calculate totals from transaction data or fallback to manual entry
+  const totalRevenueFromTransactions = monthlyTransactionData.reduce((sum, item) => sum + item.revenue, 0)
+  const totalExpensesFromTransactions = monthlyTransactionData.reduce((sum, item) => sum + item.expenses, 0)
+
+  // Calculate holdings analytics
+  const totalInvested = holdings.reduce((sum, h) => sum + (h.quantity * h.average_price), 0)
+  const totalCurrentValue = holdings.reduce((sum, h) => sum + (h.quantity * h.last_price), 0)
+  const totalPnL = totalCurrentValue - totalInvested
+  const totalPnLPercentage = totalInvested > 0 ? (totalPnL / totalInvested) * 100 : 0
+
+  // Group holdings by broker
+  const holdingsByBroker = holdings.reduce((acc, holding) => {
+    if (!acc[holding.broker]) {
+      acc[holding.broker] = []
+    }
+    acc[holding.broker].push(holding)
+    return acc
+  }, {} as Record<string, typeof holdings>)
+
+  // Calculate broker-wise performance
+  const brokerPerformance = Object.entries(holdingsByBroker).map(([broker, brokerHoldings]) => {
+    const invested = brokerHoldings.reduce((sum, h) => sum + (h.quantity * h.average_price), 0)
+    const currentValue = brokerHoldings.reduce((sum, h) => sum + (h.quantity * h.last_price), 0)
+    const pnl = currentValue - invested
+    const pnlPercentage = invested > 0 ? (pnl / invested) * 100 : 0
+    
+    return {
+      broker,
+      invested,
+      currentValue,
+      pnl,
+      pnlPercentage,
+      holdingsCount: brokerHoldings.length
+    }
+  })
+
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Analytics Overview</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Analytics Overview</h1>
+        {transactions.length > 0 && (
+          <div className="text-sm text-muted-foreground">
+            {transactions.length} transactions analyzed
+          </div>
+        )}
+      </div>
+
+      {/* Holdings Summary Cards - Show if holdings exist */}
+      {holdings.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Total Invested</CardTitle>
+              <TrendingUp className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">
+                {currencySymbol}{totalInvested.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Across {holdings.length} holdings
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Current Value</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {currencySymbol}{totalCurrentValue.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Portfolio value
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Total P&L</CardTitle>
+              {totalPnL >= 0 ? <ArrowUpCircle className="h-4 w-4 text-green-600" /> : <ArrowDownCircle className="h-4 w-4 text-red-600" />}
+            </CardHeader>
+            <CardContent>
+              <div className={`text-2xl font-bold ${totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {currencySymbol}{Math.abs(totalPnL).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {totalPnL >= 0 ? 'Profit' : 'Loss'}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">P&L Percentage</CardTitle>
+              <PieChartIcon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className={`text-2xl font-bold ${totalPnLPercentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {totalPnLPercentage >= 0 ? '+' : ''}{totalPnLPercentage.toFixed(2)}%
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Return on investment
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Transaction Summary Cards - Show if transactions exist */}
+      {transactions.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Transaction Income</CardTitle>
+              <ArrowUpCircle className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {currencySymbol}{transactionIncome.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                From imported transactions
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Transaction Expenses</CardTitle>
+              <ArrowDownCircle className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">
+                {currencySymbol}{transactionExpenses.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                From imported transactions
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Net Cashflow</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className={`text-2xl font-bold ${transactionIncome - transactionExpenses >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {currencySymbol}{Math.abs(transactionIncome - transactionExpenses).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {transactionIncome - transactionExpenses >= 0 ? 'Surplus' : 'Deficit'}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Avg Transaction</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {currencySymbol}{(transactionExpenses / Math.max(transactions.filter(t => t.type === "expense").length, 1)).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Average expense amount
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {/* Revenue Line Chart */}
@@ -130,9 +360,13 @@ export default function AnalyticsContent() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currencySymbol}{effectiveRevenue.toLocaleString("en-IN")}</div>
+            <div className="text-2xl font-bold">
+              {currencySymbol}{(totalRevenueFromTransactions || effectiveRevenue).toLocaleString("en-IN")}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {revenueDescription}
+              {transactions.length > 0 && monthlyTransactionData.length > 0
+                ? `${monthlyTransactionData.length} months from transactions`
+                : revenueDescription}
             </p>
             <ChartContainer
               config={{
@@ -144,7 +378,7 @@ export default function AnalyticsContent() {
               className="h-[200px] w-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={revenueData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                <LineChart data={displayRevenueData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
                   <XAxis
                     dataKey="month"
@@ -169,9 +403,13 @@ export default function AnalyticsContent() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{currencySymbol}{effectiveExpenses.toLocaleString("en-IN")}</div>
+            <div className="text-2xl font-bold">
+              {currencySymbol}{(totalExpensesFromTransactions || effectiveExpenses).toLocaleString("en-IN")}
+            </div>
             <p className="text-xs text-muted-foreground">
-              {expensesDescription}
+              {transactions.length > 0 && monthlyTransactionData.length > 0
+                ? `${monthlyTransactionData.length} months from transactions`
+                : expensesDescription}
             </p>
             <ChartContainer
               config={{
@@ -183,7 +421,7 @@ export default function AnalyticsContent() {
               className="h-[200px] w-full"
             >
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={expensesData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                <BarChart data={displayExpensesData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
                   <XAxis
                     dataKey="month"
@@ -202,36 +440,86 @@ export default function AnalyticsContent() {
           </CardContent>
         </Card>
 
-        {/* Expense Categories Pie Chart */}
-        <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Account Categories</CardTitle> {/* Changed title */}
-            <PieChartIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="flex items-center justify-center">
-            <ChartContainer
-              config={categoryChartConfig} // Use dynamically generated config
-              className="h-[200px] w-full"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent nameKey="name" />} />
-                  <Pie
-                    data={categoryData}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={50}
-                    outerRadius={80}
-                    strokeWidth={1}
-                    paddingAngle={3}
-                    cornerRadius={3}
-                  />
-                  <Legend layout="vertical" verticalAlign="middle" align="right" />
-                </PieChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
+        {/* Broker Performance Chart or Expense Categories */}
+        {brokerPerformance.length > 0 ? (
+          <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Broker Performance</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {brokerPerformance.map((broker) => (
+                  <div key={broker.broker} className="flex items-center justify-between p-3 rounded border">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                        {broker.broker.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="font-medium capitalize">{broker.broker}</div>
+                        <div className="text-sm text-muted-foreground">{broker.holdingsCount} holdings</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-medium">{currencySymbol}{broker.currentValue.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</div>
+                      <div className={`text-sm ${broker.pnlPercentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {broker.pnlPercentage >= 0 ? '+' : ''}{broker.pnlPercentage.toFixed(2)}%
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="bg-white dark:bg-[#0F0F12] border border-gray-200 dark:border-[#1F1F23]">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">
+                {categoryExpenses.length > 0 ? "Expense Categories" : "Account Categories"}
+              </CardTitle>
+              <PieChartIcon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="flex items-center justify-center">
+              {displayCategoryData.length > 0 ? (
+                <ChartContainer
+                  config={
+                    categoryExpenses.length > 0
+                      ? categoryExpenses.reduce((acc, item) => {
+                          acc[item.name.toLowerCase().replace(/\s+/g, '')] = {
+                            label: item.name,
+                            color: item.fill,
+                          }
+                          return acc
+                        }, {} as Record<string, { label: string; color: string }>)
+                      : categoryChartConfig
+                  }
+                  className="h-[200px] w-full"
+                >
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <ChartTooltip cursor={false} content={<ChartTooltipContent nameKey="name" />} />
+                      <Pie
+                        data={displayCategoryData}
+                        dataKey="value"
+                        nameKey="name"
+                        innerRadius={50}
+                        outerRadius={80}
+                        strokeWidth={1}
+                        paddingAngle={3}
+                        cornerRadius={3}
+                      />
+                      <Legend layout="vertical" verticalAlign="middle" align="right" />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground text-sm">
+                  No expense data available
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )

@@ -7,99 +7,78 @@ import {
   Wallet,
   ShoppingCart,
   CreditCard,
+  Utensils,
+  Car,
+  Gamepad2,
+  Heart,
+  GraduationCap,
+  Plane,
+  TrendingUp,
   type LucideIcon,
   ArrowRight,
 } from "lucide-react"
-import { useFinancialData } from "@/context/financial-data-context"
+import { useFinancialData, type Transaction } from "@/context/financial-data-context"
+import { format, formatDistanceToNow } from "date-fns"
+import Link from "next/link"
 
-interface Transaction {
+interface DisplayTransaction {
   id: string
   title: string
   amount: string
   type: "incoming" | "outgoing"
-  category: string
   icon: LucideIcon
   timestamp: string
   status: "completed" | "pending" | "failed"
 }
 
 interface List02Props {
-  transactions?: Transaction[]
+  transactions?: DisplayTransaction[]
   className?: string
 }
 
-const categoryStyles = {
-  shopping: "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100",
-  food: "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100",
-  transport: "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100",
-  entertainment: "bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100",
+// Map categories to icons
+const getCategoryIcon = (category: string): LucideIcon => {
+  const categoryLower = category.toLowerCase()
+  if (categoryLower.includes("food") || categoryLower.includes("dining")) return Utensils
+  if (categoryLower.includes("shopping")) return ShoppingCart
+  if (categoryLower.includes("transport")) return Car
+  if (categoryLower.includes("entertainment")) return Gamepad2
+  if (categoryLower.includes("health")) return Heart
+  if (categoryLower.includes("education")) return GraduationCap
+  if (categoryLower.includes("travel")) return Plane
+  if (categoryLower.includes("investment") || categoryLower.includes("income")) return TrendingUp
+  return Wallet
 }
 
-const TRANSACTIONS: Transaction[] = [
-  {
-    id: "1",
-    title: "Apple Store Purchase",
-    amount: "₹999.00",
-    type: "outgoing",
-    category: "shopping",
-    icon: ShoppingCart,
-    timestamp: "Today, 2:45 PM",
-    status: "completed",
-  },
-  {
-    id: "2",
-    title: "Salary Deposit",
-    amount: "₹4,500.00",
-    type: "incoming",
-    category: "transport",
-    icon: Wallet,
-    timestamp: "Today, 9:00 AM",
-    status: "completed",
-  },
-  {
-    id: "3",
-    title: "Netflix Subscription",
-    amount: "₹15.99",
-    type: "outgoing",
-    category: "entertainment",
-    icon: CreditCard,
-    timestamp: "Yesterday",
-    status: "pending",
-  },
-  {
-    id: "4",
-    title: "Apple Store Purchase",
-    amount: "₹999.00",
-    type: "outgoing",
-    category: "shopping",
-    icon: ShoppingCart,
-    timestamp: "Today, 2:45 PM",
-    status: "completed",
-  },
-  {
-    id: "5",
-    title: "Supabase Subscription",
-    amount: "₹15.99",
-    type: "outgoing",
-    category: "entertainment",
-    icon: CreditCard,
-    timestamp: "Yesterday",
-    status: "pending",
-  },
-  {
-    id: "6",
-    title: "Vercel Subscription",
-    amount: "₹15.99",
-    type: "outgoing",
-    category: "entertainment",
-    icon: CreditCard,
-    timestamp: "Yesterday",
-    status: "pending",
-  },
-]
+// Format transaction for display
+const formatTransaction = (txn: Transaction): DisplayTransaction => {
+  const date = new Date(txn.date)
+  const now = new Date()
+  const isToday = format(date, "yyyy-MM-dd") === format(now, "yyyy-MM-dd")
+  const isYesterday = format(date, "yyyy-MM-dd") === format(new Date(now.getTime() - 24 * 60 * 60 * 1000), "yyyy-MM-dd")
+  
+  let timestamp = ""
+  if (isToday) {
+    timestamp = `Today, ${format(date, "h:mm a")}`
+  } else if (isYesterday) {
+    timestamp = "Yesterday"
+  } else {
+    timestamp = format(date, "MMM dd, yyyy")
+  }
 
-export default function List02({ transactions = TRANSACTIONS, className }: List02Props) {
-  const { currency } = useFinancialData()
+  return {
+    id: txn.id,
+    title: txn.description,
+    amount: txn.amount.toFixed(2),
+    type: txn.type === "income" ? "incoming" : "outgoing",
+    icon: getCategoryIcon(txn.category),
+    timestamp,
+    status: "completed" as const,
+  }
+}
+
+export default function List02({ transactions: propTransactions, className }: List02Props) {
+  const { currency, transactions } = useFinancialData()
   const currencyOptions = [
     { code: "INR", symbol: "₹" },
     { code: "USD", symbol: "$" },
@@ -113,6 +92,17 @@ export default function List02({ transactions = TRANSACTIONS, className }: List0
     { code: "ZAR", symbol: "R" },
   ]
   const currencySymbol = currencyOptions.find((c) => c.code === currency)?.symbol || "₹"
+
+  // Use actual transactions from context, or fallback to default
+  const displayTransactions = propTransactions || (transactions.length > 0 
+    ? transactions
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .slice(0, 6)
+        .map(formatTransaction)
+    : [
+        { id: "1", title: "No transactions yet", amount: "0.00", type: "outgoing" as const, icon: Wallet, timestamp: "Upload a statement to get started", status: "pending" as const }
+      ]
+  )
 
   return (
     <div
@@ -128,13 +118,19 @@ export default function List02({ transactions = TRANSACTIONS, className }: List0
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
             Recent Activity
-            <span className="text-xs font-normal text-zinc-600 dark:text-zinc-400 ml-1">(23 transactions)</span>
+            {transactions.length > 0 && (
+              <span className="text-xs font-normal text-zinc-600 dark:text-zinc-400 ml-1">
+                ({transactions.length} transactions)
+              </span>
+            )}
           </h2>
-          <span className="text-xs text-zinc-600 dark:text-zinc-400">This Month</span>
+          <span className="text-xs text-zinc-600 dark:text-zinc-400">
+            {transactions.length > 0 ? "From uploaded statements" : "No data yet"}
+          </span>
         </div>
 
         <div className="space-y-1">
-          {transactions.map((transaction) => (
+          {displayTransactions.map((transaction) => (
             <div
               key={transaction.id}
               className={cn(
@@ -185,8 +181,8 @@ export default function List02({ transactions = TRANSACTIONS, className }: List0
       </div>
 
       <div className="p-2 border-t border-zinc-100 dark:border-zinc-800">
-        <button
-          type="button"
+        <Link
+          href="/transactions"
           className={cn(
             "w-full flex items-center justify-center gap-2",
             "py-2 px-3 rounded-lg",
@@ -207,7 +203,7 @@ export default function List02({ transactions = TRANSACTIONS, className }: List0
         >
           <span>View All Transactions</span>
           <ArrowRight className="w-3.5 h-3.5" />
-        </button>
+        </Link>
       </div>
     </div>
   )

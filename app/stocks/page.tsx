@@ -26,7 +26,6 @@ export default function StocksPage() {
   const { holdings, deleteHolding, currency } = useFinancialData();
   const [selectedBroker, setSelectedBroker] = useState<"all" | "kite" | "groww">("all");
   const [growwDialogOpen, setGrowwDialogOpen] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
   const [groupedHoldings, setGroupedHoldings] = useState<{
     kite: Holding[];
     groww: Holding[];
@@ -56,64 +55,16 @@ export default function StocksPage() {
   const currencySymbol = currency === "INR" ? "₹" : currency === "USD" ? "$" : "€";
 
   const handleKiteConnect = () => {
-    try {
-      setIsConnecting(true);
-      const apiKey = process.env.NEXT_PUBLIC_KITE_API_KEY;
-      
-      if (!apiKey) {
-        toast.error("Kite API key not configured. Please set NEXT_PUBLIC_KITE_API_KEY in your environment variables.", {
-          description: "Create a .env.local file in your project root and add NEXT_PUBLIC_KITE_API_KEY=your_api_key",
-          duration: 5000,
-        });
-        setIsConnecting(false);
-        return;
-      }
-
-      const redirectUri = `${window.location.origin}/stocks/callback`;
-      const kiteUrl = `https://kite.trade/connect/login?api_key=${apiKey}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-      
-      console.log("Connecting to Kite:", { apiKey: apiKey.substring(0, 10) + "...", redirectUri });
-      
-      // Small delay to ensure state update is visible
-      setTimeout(() => {
-        window.location.href = kiteUrl;
-      }, 100);
-    } catch (error) {
-      console.error("Error connecting to Kite:", error);
-      toast.error("Failed to connect to Kite. Please try again or check the browser console for details.");
-      setIsConnecting(false);
-    }
+    const apiKey = process.env.NEXT_PUBLIC_KITE_API_KEY || "wob4tch3xv9q57yy";
+    const redirectUri = `${window.location.origin}/stocks/callback`;
+    window.location.href = `https://kite.trade/connect/login?api_key=${apiKey}&redirect_uri=${redirectUri}`;
   };
 
   const handleGrowwConnect = () => {
-    try {
-      setIsConnecting(true);
-      const apiKey = process.env.NEXT_PUBLIC_GROWW_API_KEY;
-      
-      if (!apiKey) {
-        toast.error("Groww API key not configured. Please set NEXT_PUBLIC_GROWW_API_KEY in your environment variables.", {
-          description: "Create a .env.local file in your project root and add NEXT_PUBLIC_GROWW_API_KEY=your_api_key",
-          duration: 5000,
-        });
-        setIsConnecting(false);
-        return;
-      }
-
-      const redirectUri = `${window.location.origin}/stocks/groww-callback`;
-      // Adjust the Groww OAuth URL based on their actual API documentation
-      const growwUrl = `https://groww.in/api/v1/auth/login?api_key=${apiKey}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-      
-      console.log("Connecting to Groww:", { apiKey: apiKey.substring(0, 10) + "...", redirectUri });
-      
-      // Small delay to ensure state update is visible
-      setTimeout(() => {
-        window.location.href = growwUrl;
-      }, 100);
-    } catch (error) {
-      console.error("Error connecting to Groww:", error);
-      toast.error("Failed to connect to Groww. Please try again or check the browser console for details.");
-      setIsConnecting(false);
-    }
+    // Note: Groww doesn't have a public API yet
+    // For now, redirect to manual entry flow
+    toast.info("Groww API is not yet available. Please use the manual entry option below.");
+    setGrowwDialogOpen(true);
   };
 
   if (holdings.length === 0) {
@@ -150,13 +101,9 @@ export default function StocksPage() {
                 <p className="text-sm text-muted-foreground mb-4">
                   Connect your Zerodha Kite account to automatically import and sync your stock holdings.
                 </p>
-                <Button 
-                  onClick={handleKiteConnect} 
-                  className="w-full"
-                  disabled={isConnecting}
-                >
-                  <LinkIcon className={`mr-2 h-4 w-4 ${isConnecting ? 'animate-spin' : ''}`} />
-                  {isConnecting ? "Connecting..." : "Connect Kite Account"}
+                <Button onClick={handleKiteConnect} className="w-full">
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                  Connect Kite Account
                 </Button>
               </CardContent>
             </Card>
@@ -185,10 +132,9 @@ export default function StocksPage() {
                 <Button
                   onClick={handleGrowwConnect}
                   className="w-full bg-green-600 hover:bg-green-700"
-                  disabled={isConnecting}
                 >
-                  <LinkIcon className={`mr-2 h-4 w-4 ${isConnecting ? 'animate-spin' : ''}`} />
-                  {isConnecting ? "Connecting..." : "Connect Groww Account"}
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                  Connect Groww Account
                 </Button>
               </CardContent>
             </Card>
@@ -241,21 +187,13 @@ export default function StocksPage() {
             <Plus className="mr-2 h-4 w-4" />
             Add Manually
           </Button>
-          <Button 
-            onClick={handleGrowwConnect}
-            variant="outline" 
-            className="bg-green-600 hover:bg-green-700 text-white"
-            disabled={isConnecting}
-          >
-            <LinkIcon className={`mr-2 h-4 w-4 ${isConnecting ? 'animate-spin' : ''}`} />
-            {isConnecting ? "Connecting..." : "Groww"}
+          <Button onClick={handleGrowwConnect} variant="outline" className="bg-green-600 hover:bg-green-700 text-white">
+            <LinkIcon className="mr-2 h-4 w-4" />
+            Groww
           </Button>
-          <Button 
-            onClick={handleKiteConnect}
-            disabled={isConnecting}
-          >
-            <LinkIcon className={`mr-2 h-4 w-4 ${isConnecting ? 'animate-spin' : ''}`} />
-            {isConnecting ? "Connecting..." : "Kite"}
+          <Button onClick={handleKiteConnect}>
+            <LinkIcon className="mr-2 h-4 w-4" />
+            Kite
           </Button>
         </div>
       </div>

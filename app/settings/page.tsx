@@ -123,15 +123,15 @@ export default function SettingsPage() {
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="w-4 h-4" />
+            <User className="w-4 h-4" strokeWidth={1.75} />
             Profile
           </TabsTrigger>
           <TabsTrigger value="financial" className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4" />
+            <DollarSign className="w-4 h-4" strokeWidth={1.75} />
             Financial
           </TabsTrigger>
           <TabsTrigger value="ui" className="flex items-center gap-2">
-            <Palette className="w-4 h-4" />
+            <Palette className="w-4 h-4" strokeWidth={1.75} />
             UI Settings
           </TabsTrigger>
         </TabsList>
@@ -141,7 +141,7 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
+                <User className="w-5 h-5" strokeWidth={1.75} />
                 Profile Information
               </CardTitle>
               <CardDescription>
@@ -167,7 +167,7 @@ export default function SettingsPage() {
                       size="sm"
                       onClick={() => document.getElementById('profile-picture')?.click()}
                     >
-                      <Upload className="w-4 h-4 mr-2" />
+                      <Upload className="w-4 h-4 mr-2" strokeWidth={1.75} />
                       Upload Image
                     </Button>
                     <input
@@ -206,7 +206,7 @@ export default function SettingsPage() {
           <Card className="border-red-200 dark:border-red-900">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
-                <Settings className="w-5 h-5" />
+                <Settings className="w-5 h-5" strokeWidth={1.75} />
                 Account Actions
               </CardTitle>
               <CardDescription>
@@ -218,7 +218,7 @@ export default function SettingsPage() {
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" className="flex-1">
-                      <Trash2 className="w-4 h-4 mr-2" />
+                      <Trash2 className="w-4 h-4 mr-2" strokeWidth={1.75} />
                       Clear Data
                     </Button>
                   </AlertDialogTrigger>
@@ -241,7 +241,7 @@ export default function SettingsPage() {
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="outline" className="flex-1 border-red-300 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950">
-                      <LogOut className="w-4 h-4 mr-2" />
+                      <LogOut className="w-4 h-4 mr-2" strokeWidth={1.75} />
                       Logout
                     </Button>
                   </AlertDialogTrigger>
@@ -270,7 +270,7 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5" />
+                <DollarSign className="w-5 h-5" strokeWidth={1.75} />
                 Financial Preferences
               </CardTitle>
               <CardDescription>
@@ -304,7 +304,7 @@ export default function SettingsPage() {
               {/* Monthly Salary */}
               <div className="space-y-2">
                 <Label htmlFor="salary" className="flex items-center gap-2">
-                  <PiggyBank className="w-4 h-4" />
+                  <PiggyBank className="w-4 h-4" strokeWidth={1.75} />
                   Monthly Salary
                 </Label>
                 <div className="flex gap-2">
@@ -329,7 +329,7 @@ export default function SettingsPage() {
               {/* Monthly Expenses */}
               <div className="space-y-2">
                 <Label htmlFor="expenses" className="flex items-center gap-2">
-                  <TrendingDown className="w-4 h-4" />
+                  <TrendingDown className="w-4 h-4" strokeWidth={1.75} />
                   Monthly Expenses/EMI
                 </Label>
                 <div className="flex gap-2">
@@ -357,7 +357,7 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Palette className="w-5 h-5" />
+                <Palette className="w-5 h-5" strokeWidth={1.75} />
                 Appearance
               </CardTitle>
               <CardDescription>
@@ -374,7 +374,7 @@ export default function SettingsPage() {
                     onClick={() => setTheme("light")}
                     className="flex flex-col items-center gap-2 h-auto p-4"
                   >
-                    <Sun className="w-6 h-6" />
+                    <Sun className="w-6 h-6" strokeWidth={1.75} />
                     <span>Light</span>
                   </Button>
                   <Button
@@ -382,7 +382,7 @@ export default function SettingsPage() {
                     onClick={() => setTheme("dark")}
                     className="flex flex-col items-center gap-2 h-auto p-4"
                   >
-                    <Moon className="w-6 h-6" />
+                    <Moon className="w-6 h-6" strokeWidth={1.75} />
                     <span>Dark</span>
                   </Button>
                   <Button
@@ -390,7 +390,7 @@ export default function SettingsPage() {
                     onClick={() => setTheme("system")}
                     className="flex flex-col items-center gap-2 h-auto p-4"
                   >
-                    <Monitor className="w-6 h-6" />
+                    <Monitor className="w-6 h-6" strokeWidth={1.75} />
                     <span>System</span>
                   </Button>
                 </div>

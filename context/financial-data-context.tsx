@@ -424,16 +424,7 @@ export function FinancialDataProvider({ children }: { children: ReactNode }) {
     setMonthlyExpenseAmount(() => 0)
     setTransactions(() => EMPTY_TRANSACTIONS)
     setHoldings(() => EMPTY_HOLDINGS)
-    
-    // Clear localStorage data
-    if (user) {
-      localStorage.removeItem(`dashboard_data_${user}`)
-      localStorage.removeItem(`profile_picture_${user}`)
-    }
-    // Clear broker holdings
-    localStorage.removeItem("groww_holdings")
-    localStorage.removeItem("kite_holdings")
-  }, [user])
+  }, [])
 
   return (
     <FinancialDataContext.Provider value={{ accounts, addAccount, updateAccount, deleteAccount, events, addEvent, updateEvent, deleteEvent, currency, setCurrency, revenueData, setRevenueData, expensesData, setExpensesData, salaryAmount, setSalaryAmount, monthlyExpenseAmount, setMonthlyExpenseAmount, transactions, addTransaction, addTransactions, updateTransaction, deleteTransaction, holdings, addHolding, addHoldings, updateHolding, deleteHolding, clearUserData }}>

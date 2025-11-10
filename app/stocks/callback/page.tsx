@@ -13,7 +13,7 @@ export default function KiteCallback() {
   const [rawError, setRawError] = useState<any>(null);
   const [holdingsCount, setHoldingsCount] = useState(0);
   const router = useRouter();
-  const { addHoldings, holdings: currentHoldings, deleteHolding } = useFinancialData();
+  const { addHoldings } = useFinancialData();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -90,7 +90,6 @@ export default function KiteCallback() {
 
         if (data.holdings && Array.isArray(data.holdings)) {
           // Convert Kite holdings to our Holding format
-          // Use unique ID based on tradingsymbol + exchange + broker to prevent duplicates
           const formattedHoldings: Holding[] = data.holdings.map((h: any, index: number) => {
             const invested = h.quantity * h.average_price;
             const currentValue = h.quantity * h.last_price;
@@ -98,7 +97,7 @@ export default function KiteCallback() {
             const pnlPercentage = ((pnl / invested) * 100) || 0;
 
             return {
-              id: `kite-${h.tradingsymbol}-${h.exchange}-${Date.now()}-${index}`,
+              id: `kite-${Date.now()}-${index}`,
               tradingsymbol: h.tradingsymbol,
               exchange: h.exchange,
               quantity: h.quantity,
@@ -111,16 +110,9 @@ export default function KiteCallback() {
             };
           });
 
-          // Remove existing Kite holdings before adding new ones to prevent duplicates
-          currentHoldings
-            .filter(h => h.broker === "kite")
-            .forEach(h => deleteHolding(h.id));
-          
-          // Then add the new holdings (use setTimeout to ensure deletions happen first)
-          setTimeout(() => {
-            addHoldings(formattedHoldings);
-            setHoldingsCount(formattedHoldings.length);
-          }, 0);
+          // Add to financial context
+          addHoldings(formattedHoldings);
+          setHoldingsCount(formattedHoldings.length);
 
           // Also store in legacy localStorage for backward compatibility
           localStorage.setItem("kite_holdings", JSON.stringify(data.holdings));
@@ -178,15 +170,13 @@ export default function KiteCallback() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
-            <div className="text-muted-foreground whitespace-pre-line text-left bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800">
-              {error}
-            </div>
+            <p className="text-muted-foreground">{error}</p>
             {rawError && (
               <details className="text-left">
-                <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
+                <summary className="cursor-pointer text-sm text-muted-foreground">
                   Technical Details
                 </summary>
-                <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto max-h-60">
+                <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto">
                   {JSON.stringify(rawError, null, 2)}
                 </pre>
               </details>

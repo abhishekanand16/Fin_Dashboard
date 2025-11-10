@@ -452,46 +452,11 @@ export default function AnalyticsContent() {
                 {brokerPerformance.map((broker) => (
                   <div key={broker.broker} className="flex items-center justify-between p-3 rounded border">
                     <div className="flex items-center gap-3">
-                      {broker.broker === "kite" ? (
-                        <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                          <img
-                            src="https://kite.zerodha.com/static/images/kite-logo.svg"
-                            alt="Kite Logo"
-                            className="w-8 h-8"
-                            onError={(e) => {
-                              // Fallback to initial if image fails to load
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              if (target.parentElement) {
-                                target.parentElement.innerHTML = `<div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">K</div>`;
-                              }
-                            }}
-                          />
-                        </div>
-                      ) : broker.broker === "groww" ? (
-                        <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                          <img
-                            src="https://groww.in/groww-logo-270.png"
-                            alt="Groww Logo"
-                            className="w-8 h-8 rounded-full"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                              if (target.parentElement) {
-                                target.parentElement.innerHTML = `<div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-teal-600 flex items-center justify-center text-white text-sm font-bold">G</div>`;
-                              }
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
-                          {broker.broker.charAt(0).toUpperCase()}
-                        </div>
-                      )}
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                        {broker.broker.charAt(0).toUpperCase()}
+                      </div>
                       <div>
-                        <div className="font-medium capitalize">
-                          {broker.broker === "kite" ? "Kite (Zerodha)" : broker.broker === "groww" ? "Groww" : broker.broker}
-                        </div>
+                        <div className="font-medium capitalize">{broker.broker}</div>
                         <div className="text-sm text-muted-foreground">{broker.holdingsCount} holdings</div>
                       </div>
                     </div>

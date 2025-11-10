@@ -23,7 +23,7 @@ export default function DashboardPage() {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-zinc-900 dark:to-zinc-800">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-sky-100 to-teal-100 dark:from-zinc-900 dark:to-zinc-800">
         <form
           className="bg-white dark:bg-zinc-900 p-8 rounded-xl shadow-lg flex flex-col gap-4 min-w-[320px] border border-gray-200 dark:border-zinc-800"
           onSubmit={e => {

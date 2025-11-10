@@ -34,6 +34,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
+    // Clear all user-related data from localStorage
+    if (user) {
+      localStorage.removeItem(`dashboard_data_${user}`)
+      localStorage.removeItem(`profile_picture_${user}`)
+    }
+    // Clear broker holdings (these are not user-specific but should be cleared on logout)
+    localStorage.removeItem("groww_holdings")
+    localStorage.removeItem("kite_holdings")
+    
     setUser(null)
     Cookies.remove("demo_user")
   }

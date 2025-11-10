@@ -10,10 +10,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { useTheme } from "next-themes"
 import { useUser } from "@/context/user-context"
 import { useFinancialData } from "@/context/financial-data-context"
 import { useStyle } from "@/components/style-provider"
+import { useRouter } from "next/navigation"
 import { 
   User, 
   DollarSign, 
@@ -24,21 +36,25 @@ import {
   Settings,
   Moon,
   Sun,
-  Monitor
+  Monitor,
+  LogOut,
+  Trash2
 } from "lucide-react"
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme()
   const { style, setStyle } = useStyle()
   const isGlass = style === "glass";
-  const { user, updateUsername, updateProfilePicture } = useUser()
+  const { user, updateUsername, updateProfilePicture, logout } = useUser()
+  const router = useRouter()
   const { 
     currency, 
     setCurrency, 
     salaryAmount, 
     setSalaryAmount, 
     monthlyExpenseAmount, 
-    setMonthlyExpenseAmount 
+    setMonthlyExpenseAmount,
+    clearUserData
   } = useFinancialData()
 
   const [username, setUsername] = useState(user || "")
@@ -83,6 +99,20 @@ export default function SettingsPage() {
     }
   }, [updateProfilePicture])
 
+  const handleClearData = useCallback(() => {
+    clearUserData()
+    // Reload the page to reflect cleared data
+    window.location.reload()
+  }, [clearUserData])
+
+  const handleLogout = useCallback(() => {
+    // Clear financial data state first
+    clearUserData()
+    // Then logout (which clears localStorage and cookies)
+    logout()
+    router.push("/")
+  }, [clearUserData, logout, router])
+
   return (
     <div className={isGlass ? "p-6 max-w-4xl mx-auto bg-white/40 border border-cyan-200/40 shadow-lg backdrop-blur-2xl rounded-2xl" : "p-6 max-w-4xl mx-auto"}>
       <div className="mb-8">
@@ -93,15 +123,15 @@ export default function SettingsPage() {
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="w-4 h-4" />
+            <User className="w-4 h-4" strokeWidth={1.75} />
             Profile
           </TabsTrigger>
           <TabsTrigger value="financial" className="flex items-center gap-2">
-            <DollarSign className="w-4 h-4" />
+            <DollarSign className="w-4 h-4" strokeWidth={1.75} />
             Financial
           </TabsTrigger>
           <TabsTrigger value="ui" className="flex items-center gap-2">
-            <Palette className="w-4 h-4" />
+            <Palette className="w-4 h-4" strokeWidth={1.75} />
             UI Settings
           </TabsTrigger>
         </TabsList>
@@ -111,7 +141,7 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="w-5 h-5" />
+                <User className="w-5 h-5" strokeWidth={1.75} />
                 Profile Information
               </CardTitle>
               <CardDescription>
@@ -137,7 +167,7 @@ export default function SettingsPage() {
                       size="sm"
                       onClick={() => document.getElementById('profile-picture')?.click()}
                     >
-                      <Upload className="w-4 h-4 mr-2" />
+                      <Upload className="w-4 h-4 mr-2" strokeWidth={1.75} />
                       Upload Image
                     </Button>
                     <input
@@ -171,6 +201,68 @@ export default function SettingsPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Account Actions */}
+          <Card className="border-red-200 dark:border-red-900">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                <Settings className="w-5 h-5" strokeWidth={1.75} />
+                Account Actions
+              </CardTitle>
+              <CardDescription>
+                Clear your data or logout from your account.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="flex-1">
+                      <Trash2 className="w-4 h-4 mr-2" strokeWidth={1.75} />
+                      Clear Data
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Clear All Data?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete all your financial data, accounts, events, transactions, and holdings. Your profile information will remain.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleClearData} className="bg-red-600 hover:bg-red-700">
+                        Clear Data
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="flex-1 border-red-300 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950">
+                      <LogOut className="w-4 h-4 mr-2" strokeWidth={1.75} />
+                      Logout
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Logout from Account?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        You will be logged out and all your data will be cleared. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleLogout} className="bg-red-600 hover:bg-red-700">
+                        Logout
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Financial Settings */}
@@ -178,7 +270,7 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5" />
+                <DollarSign className="w-5 h-5" strokeWidth={1.75} />
                 Financial Preferences
               </CardTitle>
               <CardDescription>
@@ -212,7 +304,7 @@ export default function SettingsPage() {
               {/* Monthly Salary */}
               <div className="space-y-2">
                 <Label htmlFor="salary" className="flex items-center gap-2">
-                  <PiggyBank className="w-4 h-4" />
+                  <PiggyBank className="w-4 h-4" strokeWidth={1.75} />
                   Monthly Salary
                 </Label>
                 <div className="flex gap-2">
@@ -237,7 +329,7 @@ export default function SettingsPage() {
               {/* Monthly Expenses */}
               <div className="space-y-2">
                 <Label htmlFor="expenses" className="flex items-center gap-2">
-                  <TrendingDown className="w-4 h-4" />
+                  <TrendingDown className="w-4 h-4" strokeWidth={1.75} />
                   Monthly Expenses/EMI
                 </Label>
                 <div className="flex gap-2">
@@ -265,7 +357,7 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Palette className="w-5 h-5" />
+                <Palette className="w-5 h-5" strokeWidth={1.75} />
                 Appearance
               </CardTitle>
               <CardDescription>
@@ -282,7 +374,7 @@ export default function SettingsPage() {
                     onClick={() => setTheme("light")}
                     className="flex flex-col items-center gap-2 h-auto p-4"
                   >
-                    <Sun className="w-6 h-6" />
+                    <Sun className="w-6 h-6" strokeWidth={1.75} />
                     <span>Light</span>
                   </Button>
                   <Button
@@ -290,7 +382,7 @@ export default function SettingsPage() {
                     onClick={() => setTheme("dark")}
                     className="flex flex-col items-center gap-2 h-auto p-4"
                   >
-                    <Moon className="w-6 h-6" />
+                    <Moon className="w-6 h-6" strokeWidth={1.75} />
                     <span>Dark</span>
                   </Button>
                   <Button
@@ -298,7 +390,7 @@ export default function SettingsPage() {
                     onClick={() => setTheme("system")}
                     className="flex flex-col items-center gap-2 h-auto p-4"
                   >
-                    <Monitor className="w-6 h-6" />
+                    <Monitor className="w-6 h-6" strokeWidth={1.75} />
                     <span>System</span>
                   </Button>
                 </div>

@@ -16,8 +16,29 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
-.env*
+# env files - API keys and secrets
+.env
+.env.local
+.env*.local
+.env.development
+.env.production
+.env.test
+.env.staging
+*.env
+.envrc
+
+# API keys and secrets
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.json
+secrets.yaml
+secrets.yml
+config.local.json
+config.local.js
+*.secret
+.secrets
 
 # vercel
 .vercel

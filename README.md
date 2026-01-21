@@ -69,7 +69,7 @@ A modern financial dashboard built with Next.js 15, React 19, and Tailwind CSS f
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/abhishekanand16/Fin_Dashboard
    cd Fin_Dashboard
    ```
 

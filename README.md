@@ -2,6 +2,8 @@
 
 A modern financial dashboard built with Next.js 15, React 19, and Tailwind CSS for managing accounts, goals, stock portfolios, transactions, and financial analytics.
 
+> Note: This is a client-first app. By default, data is stored per user in your browser (localStorage + cookies). There is no database.
+
 ## ✨ Features
 
 ### 🔐 User Authentication & Data Persistence
@@ -34,7 +36,7 @@ A modern financial dashboard built with Next.js 15, React 19, and Tailwind CSS f
 
 ### 💳 Transaction Management
 - **Bank Statement Upload**: Upload bank statements in text format
-- **AI-Powered Processing**: Uses OpenAI GPT-4 to extract and categorize transactions
+- **AI-Powered Processing (Optional)**: Uses OpenAI `gpt-4o-mini` to extract and categorize transactions
 - **Fallback Processing**: Rule-based extraction when AI is unavailable
 - **Transaction Categories**: Auto-categorize into Food & Dining, Shopping, Transportation, etc.
 - **Search & Filter**: Search by description or category, filter by type (income/expense)
@@ -78,16 +80,15 @@ A modern financial dashboard built with Next.js 15, React 19, and Tailwind CSS f
    pnpm install
    ```
 
-3. **Set up Environment Variables** (optional):
-   ```bash
-   # For Kite/Zerodha integration
-   NEXT_PUBLIC_KITE_API_KEY=your_kite_api_key
-   
-   # For AI-powered bank statement processing
-   OPENAI_API_KEY=your_openai_api_key
-   # OR
-   NEXT_PUBLIC_OPENAI_API_KEY=your_openai_api_key
-   ```
+3. **Set up Environment Variables** (optional integrations):
+
+   Create `.env.local` in the project root.
+
+   | Integration | Variables | Notes |
+   |---|---|---|
+   | Kite (Zerodha) | `KITE_API_KEY`, `KITE_API_SECRET` | Server route also accepts `NEXT_PUBLIC_KITE_API_KEY` for compatibility, but prefer `KITE_API_KEY`. |
+   | Groww | `GROWW_API_KEY`, `GROWW_API_SECRET` | Used by the server route for holdings fetch. |
+   | Statement AI | `OPENAI_API_KEY` | If missing, the app falls back to rule-based parsing. Avoid `NEXT_PUBLIC_OPENAI_API_KEY` unless you understand the security tradeoffs. |
 
 4. **Run Development Server**:
    ```bash
@@ -104,6 +105,12 @@ A modern financial dashboard built with Next.js 15, React 19, and Tailwind CSS f
 ```bash
 pnpm build
 pnpm start
+```
+
+### Lint
+
+```bash
+pnpm lint
 ```
 
 ## 🛠️ Technical Stack
@@ -215,7 +222,7 @@ Fin_Dashboard/
 - **No Passwords**: Simple demo authentication system
 - **Data Isolation**: Each user has separate data storage
 - **Clear Data**: Option to reset all user data
-- **No External Data Transmission**: Data processing happens locally (except API integrations when used)
+- **External Calls (Optional)**: Broker integrations and statement AI call external APIs only when configured and used
 
 ## 📝 API Integrations
 
@@ -232,6 +239,12 @@ Fin_Dashboard/
 - AI-powered extraction (requires OpenAI API key)
 - Fallback rule-based processing
 - Supports multiple statement formats
+
+## 🧩 Troubleshooting
+
+- **Kite auth fails / token expired**: Request tokens expire very quickly—retry the connect flow and complete it immediately.
+- **`/api/process-statement` uses AI unexpectedly**: Ensure you don’t have `OPENAI_API_KEY` set in your environment if you want to force the fallback parser.
+- **Data didn’t persist**: Check browser storage settings; this app relies on cookies + localStorage.
 
 ## 🚀 Future Enhancements
 

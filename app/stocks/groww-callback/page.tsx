@@ -2,6 +2,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { RefreshCw, XCircle, CheckCircle } from "lucide-react";
+import { useFinancialData, Holding } from "@/context/financial-data-context";
 
 export default function GrowwCallback() {
   const [loading, setLoading] = useState(true);
@@ -16,28 +20,28 @@ export default function GrowwCallback() {
     const requestToken = params.get("request_token");
     const status = params.get("status");
     const error = params.get("error");
-    
+
     // Check for error in URL params
     if (status === "error" || error) {
       setError(error || "Authentication failed. Please try again.");
       setLoading(false);
       return;
     }
-    
+
     if (!requestToken) {
       setError("No request token found in the URL.");
       setLoading(false);
       return;
     }
-    
+
     // Get API key to send with request for validation
     const apiKey = process.env.NEXT_PUBLIC_GROWW_API_KEY;
-    
+
     // Call backend API to fetch holdings
     fetch("/api/groww-holdings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         request_token: requestToken,
         api_key: apiKey
       })
@@ -47,7 +51,7 @@ export default function GrowwCallback() {
         if (data.error) {
           // Format error message for user
           let errorMessage = data.error;
-          
+
           if (data.error?.includes("checksum")) {
             errorMessage = "Checksum Validation Failed\n\nThe request checksum is invalid. This usually means:\n• Your API secret might be incorrect\n• There could be extra spaces in your .env.local file\n• The request token may have expired\n\nPlease:\n• Double-check your GROWW_API_SECRET in .env.local matches exactly what's in Groww Console\n• Ensure there are no quotes or spaces around the values\n• Restart your dev server\n• Try connecting again immediately";
             if (data.troubleshooting?.checksum_issues) {
@@ -64,11 +68,11 @@ export default function GrowwCallback() {
               errorMessage += "\n\nAdditional tips:\n" + data.troubleshooting.token_issues.map((issue: string) => `• ${issue}`).join("\n");
             }
           }
-          
+
           if (data.details && !errorMessage.includes(data.details)) {
             errorMessage += "\n\n" + data.details;
           }
-          
+
           if (data.troubleshooting && !data.troubleshooting.api_key_issues && !data.troubleshooting.checksum_issues) {
             errorMessage += "\n\nTroubleshooting:\n" + Object.entries(data.troubleshooting).map(([key, value]) => {
               if (Array.isArray(value)) {
@@ -77,7 +81,7 @@ export default function GrowwCallback() {
               return `• ${key}: ${value}`;
             }).join("\n");
           }
-          
+
           setError(errorMessage);
           setRawError(data);
           setLoading(false);
@@ -110,7 +114,7 @@ export default function GrowwCallback() {
           currentHoldings
             .filter(h => h.broker === "groww")
             .forEach(h => deleteHolding(h.id));
-          
+
           // Then add the new holdings
           setTimeout(() => {
             addHoldings(formattedHoldings);
@@ -119,9 +123,9 @@ export default function GrowwCallback() {
 
           // Also store in legacy localStorage for backward compatibility
           localStorage.setItem("groww_holdings", JSON.stringify(data.holdings));
-          
+
           toast.success(`Successfully connected! Added ${formattedHoldings.length} holdings from Groww.`);
-          
+
           // Redirect after showing success
           setTimeout(() => {
             router.replace("/stocks");
@@ -225,35 +229,6 @@ export default function GrowwCallback() {
           </div>
         </CardContent>
       </Card>
-  const [status, setStatus] = useState("Connecting to Groww...");
-  const router = useRouter();
-
-  useEffect(() => {
-    // Simulate connection process
-    setTimeout(() => {
-      setStatus("Fetching your holdings...");
-      
-      // Since Groww doesn't have a public API, we'll show a message
-      setTimeout(() => {
-        toast.info("Groww API integration is coming soon. You can manually add your stocks using the 'Add Groww Stock' button.");
-        router.replace("/stocks");
-      }, 2000);
-    }, 1500);
-  }, [router]);
-
-  return (
-    <div className="p-8 flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold mb-4">{status}</h1>
-        {loading && (
-          <div className="flex items-center justify-center gap-2 text-muted-foreground">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-            <p>Please wait...</p>
-          </div>
-        )}
-      </div>
     </div>
   );
 }
-
-
